@@ -3,7 +3,8 @@
 
 > For issues and ideas, [open a GitHub issue](https://github.com/binpash/benchmarks/issues/new/choose).
 
-The Koala benchmark suite enables characterization of performance-oriented research targeting the POSIX shell. It consists of 14 real-world program sets from diverse domains ranging from CI/CD and AI/ML to biology and the humanities. They are accompanied by real inputs that facilitate small- and large-scale performance characterization and varying opportunities for optimization.
+Koala is a benchmark suite aimed at the characterization of performance-oriented research targeting the POSIX shell.
+It consists of 14 sets of real-world shell programs from diverse domains ranging from CI/CD and AI/ML to biology and the humanities. They are accompanied by real inputs that facilitate small- and large-scale performance characterization and varying opportunities for optimization.
 
 If any aspect of Koala is useful, please cite the [ATC'25 Koala paper](https://www.usenix.org/conference/atc25/presentation/lamprou):
 ```bibtex
@@ -21,6 +22,9 @@ If any aspect of Koala is useful, please cite the [ATC'25 Koala paper](https://w
 As part of the [ATC'25 Artifact Evaluation process](https://www.usenix.org/conference/atc25/call-for-artifacts), the Koala frozen [`atc25-ae branch`](https://github.com/kbensh/koala/tree/atc25-ae) received all three badges—artifact *Available*, *Functional*, and *Reproduced*.
 
 ## Benchmarks
+
+Each of the top-level folders (except infrastructure) contains a benchmark set.
+Please explore the individual benchmark directories for more details on their specific inputs, dependencies, and usage.
 
 | Benchmark   | Description                                                                 |
 |-------------|-----------------------------------------------------------------------------|
