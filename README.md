@@ -1,7 +1,7 @@
 # The Koala Benchmark Suite
 [Benchmarks](#benchmarks) | [Quick Setup](#quick-setup) | [More Info](#more-info) | [License](#license)
 
-> If you find any *issues*, [open a GitHub issue](https://github.com/binpash/benchmarks/issues/new/choose).
+> For issues and ideas, [open a GitHub issue](https://github.com/binpash/benchmarks/issues/new/choose).
 
 The Koala benchmark suite enables characterization of performance-oriented research targeting the POSIX shell. It consists of 14 real-world program sets from diverse domains ranging from CI/CD and AI/ML to biology and the humanities. They are accompanied by real inputs that facilitate small- and large-scale performance characterization and varying opportunities for optimization.
 
