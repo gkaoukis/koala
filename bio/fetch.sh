@@ -18,6 +18,7 @@ for arg in "$@"; do
         --min)
             IN_NAME="input_min.txt"
             in_dir="$IN/bio-min"
+            size="min"
             ;;
     esac
 done
@@ -37,6 +38,10 @@ fi
 if [[ ! -f "$IN_NAME" ]]; then
     echo "Input file '$IN_NAME' not found." >&2
     exit 1
+fi
+
+if [[ $size == "min" ]]; then
+    exit 0
 fi
 
 while IFS= read -r s_line; do

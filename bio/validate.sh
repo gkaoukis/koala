@@ -9,7 +9,6 @@ hash_folder="hashes/full"
 directory="outputs"
 tseq_output="outputs/teraseq"
 
-
 generate=false
 for arg in "$@"; do
     if [[ "$arg" == "--generate" ]]; then
@@ -17,7 +16,9 @@ for arg in "$@"; do
         continue
     fi
     case "$arg" in
-    --min) hash_folder="hashes/min" ;;
+    --min)  hash_folder="hashes/min" 
+            size=min
+            ;;
     --small) hash_folder="hashes/small" ;;
     esac
 done
@@ -61,6 +62,10 @@ for file in "$directory"/*.bam; do
     # Print the filename and match
     echo "$hash_folder/$filename $match"
 done
+
+if [[ "$size" == "min" ]]; then
+    exit 0
+fi
 
 mismatch=0
 tmpfile=$(mktemp)
