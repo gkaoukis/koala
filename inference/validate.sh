@@ -45,6 +45,8 @@ if $generate; then
     md5sum $outputs_dir/* > "$hashes_dir/$bench.md5sum"
     echo "Hashes generated at $hashes_dir/$bench.md5sum"
 
+    hashes_dir="hashes"
+    outputs_dir="outputs"    
     python3 clean_output.py "$outputs_dir/dpt_output$suffix.txt" "$outputs_dir/dpt_output$suffix-cleaned.txt"
     dpt_hash=$(shasum -a 256 "$outputs_dir/dpt_output$suffix-cleaned.txt" | awk '{ print $1 }')
     echo "$dpt_hash" > "$hashes_dir/dpt_output$suffix.txt"
@@ -92,7 +94,8 @@ fi
 md5sum --check --quiet --status $hashes_dir/$bench.md5sum
 echo $bench $?
 
-
+hashes_dir="hashes"
+outputs_dir="outputs"
 python3 clean_output.py "$outputs_dir/dpt_output$suffix.txt" "$outputs_dir/dpt_output$suffix-cleaned.txt"
 dpt_hash=$(shasum -a 256 "$outputs_dir/dpt_output$suffix-cleaned.txt" | awk '{ print $1 }')
 expected_sec_hash=$(cat "$hashes_dir/dpt_output$suffix.txt")
