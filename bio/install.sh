@@ -1,5 +1,13 @@
 #!/bin/bash
 
+size=full
+for arg in "$@"; do
+    case "$arg" in
+    --small) size=small ;;
+    --min) size=min ;;
+    esac
+done
+
 sudo apt-get update
 pkgs="build-essential libncurses5-dev libncursesw5-dev libbz2-dev liblzma-dev libcurl4-openssl-dev libssl-dev wget zlib1g-dev minimap2 samtools" 
 
@@ -8,6 +16,10 @@ for pkg in $pkgs; do
         sudo apt-get install -y --no-install-recommends $pkg
     fi
 done
+
+if [[ "$size" == "min" ]]; then
+    exit 0
+fi
 
 # For teraseq
 TOP=$(git rev-parse --show-toplevel)

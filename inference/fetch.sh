@@ -35,8 +35,7 @@ if [[ "$size" == "min" ]]; then
     if [ -d "$min_dir" ]; then
         echo "Data already downloaded and extracted."
     else
-        mkdir -p "$min_dir"
-        cp "${eval_dir}"/min_inputs/pl-06-P_F-A_N-1.png "$min_dir/"
+        cp -r "${eval_dir}"/min_inputs/dpt.min "$input_dir"
     fi
 fi
 
@@ -105,27 +104,13 @@ elif [[ "$size" == "min" ]]; then
     if [[ -d "$input_dir/jpg.min" ]]; then
         echo "Image data already downloaded and extracted."
     else
-        min_inputs="$eval_dir/min_inputs/jpg.min"
-        out_dir="$input_dir/jpg.min/jpg"
-        mkdir -p "$out_dir"
-        cp -r "$min_inputs"/* "$out_dir/"
+        cp -r "${eval_dir}"/min_inputs/jpg.min "$input_dir"
     fi
     if [[ -d "$input_dir/songs.min" ]]; then
         echo "Song data already downloaded and extracted."
         exit 0
     fi
-    data_url="${URL}/llm/playlist_min.tar.gz"
-    wget --no-check-certificate $data_url -O $input_dir/playlist_min.tar.gz || {
-        echo "Failed to download $data_url"
-        exit 1
-    }
-    tar -xzf "$input_dir/playlist_min.tar.gz" -C "$input_dir" || {
-        echo "Failed to extract $input_dir/playlist_min.tar.gz"
-        exit 1
-    }
-    rm "$input_dir/playlist_min.tar.gz"
-    mv "$input_dir/playlist_min" "$input_dir/songs.min"
-    exit 0
+    cp -r "${eval_dir}"/min_inputs/songs.min "$input_dir"
 else
     if [[ -d "$input_dir/jpg" ]]; then
         echo "Image data already downloaded and extracted."
