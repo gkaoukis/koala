@@ -7,15 +7,19 @@ Koala is a benchmark suite aimed at the characterization of performance-oriented
 It consists of 14 sets of real-world shell programs from diverse domains ranging from CI/CD and AI/ML to biology and the humanities. They are accompanied by real inputs that facilitate small- and large-scale performance characterization and varying opportunities for optimization.
 
 If any aspect of Koala is useful, please cite the [ATC'25 Koala paper](https://www.usenix.org/conference/atc25/presentation/lamprou):
+
 ```bibtex
-@inproceedings{koala2025atc,
-  title = {The Koala Benchmarks for the Shell: Characterization and Implications},
-  author = {Evangelos Lamprou and Ethan Williams and Georgios Kaoukis and Zhuoxuan Zhang
-        and Michael Greenberg and Konstantinos Kallas and Lukas Lazarek and Nikos Vasilakis},
-  booktitle = {Proceedings of the 2025 USENIX Annual Technical Conference (USENIX ATC '25)},
-  year = {2025},
-  address = {Santa Clara, CA},
-  publisher = {USENIX Association},
+@inproceedings {koala:atc:2025,
+ title = {The Koala Benchmarks for the Shell: Characterization and Implications},
+ author = {Evangelos Lamprou and Ethan Williams and Georgios Kaoukis and Zhuoxuan Zhang and Michael Greenberg and Konstantinos Kallas and Lukas Lazarek and Nikos Vasilakis},
+ booktitle = {Proceedings of the 2025 USENIX Annual Technical Conference (USENIX ATC '25)},
+ year = {2025},
+ isbn = {978-1-939133-48-9},
+ address = {Boston, MA},
+ pages = {449--64},
+ url = {https://www.usenix.org/conference/atc25/presentation/lamprou},
+ publisher = {USENIX Association},
+ month = jul
 }
 ```
 
