@@ -16,15 +16,15 @@ Time in Commands: 84.73 sec
 
 Benchmark: bio
 --------------------------------------------------
-Total CPU time: 6596.75 sec
-Total Wall time: 3036.80 sec
-Total IO bytes: 360279268503.00
+Total CPU time: 6772.84 sec
+Total Wall time: 3216.67 sec
+Total IO bytes: 377745949282.00
 Max Memory Usage: 26927284224.00 bytes
 CPU time per input byte: 0.000000 sec/byte
-Memory per input byte: 0.760329 bytes/byte
-IO per input byte: 10.172984 bytes/byte
-Time in Shell: 51.98 sec
-Time in Commands: 6544.77 sec
+Memory per input byte: 0.902427 bytes/byte
+IO per input byte: 12.659584 bytes/byte
+Time in Shell: 51.99 sec
+Time in Commands: 6720.85 sec
 ==================================================
 
 Benchmark: ci-cd
@@ -168,17 +168,4 @@ Memory per input byte: 0.105541 bytes/byte
 IO per input byte: 44.863565 bytes/byte
 Time in Shell: 0.26 sec
 Time in Commands: 958.79 sec
-==================================================
-
-Benchmark: web-search
---------------------------------------------------
-Total CPU time: 1354.74 sec
-Total Wall time: 1524.64 sec
-Total IO bytes: 18344365199.00
-Max Memory Usage: 1417924608.00 bytes
-CPU time per input byte: 0.000570 sec/byte
-Memory per input byte: 596.222577 bytes/byte
-IO per input byte: 7713.615117 bytes/byte
-Time in Shell: 11.20 sec
-Time in Commands: 1343.54 sec
 ==================================================

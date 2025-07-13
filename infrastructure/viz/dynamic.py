@@ -95,6 +95,7 @@ def plot_benchmark_times(df,
     data = df.copy()
     # pivot
     data = data.melt(id_vars=['benchmark'], value_vars=['time_in_shell', 'time_in_commands'], var_name='type', value_name='timeSorC')
+    data['type'] = data['type'].str.replace('_', ' ')
     bar = sns.barplot(x='benchmark', y='timeSorC', hue='type', data=data, palette=['#88CCEE', '#117733'],  ax=ax, zorder=3)
     first_color = ax.patches[0].get_facecolor()
     for i, bar in enumerate(ax.patches):
