@@ -56,6 +56,8 @@ Koala can be obtained using the following ways:
 * Fetch the oficial Docker container by running `docker pull ghcr.io/kbensh/koala:latest`, or
 * Build the Docker [container from scratch](#environment--setup-notes).
 
+> **Note:** Docker version **20.10.0** or later is required to run or build the Koala container successfully.
+
 ## More info
 
 **Setup and configuration:** Extended instructions on Koala's setup and configuration can be found in the [INSTRUCTIONS](./INSTRUCTIONS.md) file.
