@@ -37,13 +37,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Log in to GHCR
-        if: github.event_name == 'push'
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Pull benchmarks image
+        run: |
+          docker pull ghcr.io/kbensh/benchmarks:latest
+          docker tag ghcr.io/kbensh/benchmarks:latest benchmark-env
+
 
       - name: Pull benchmarks image
         run: |
