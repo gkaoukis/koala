@@ -50,7 +50,7 @@ suffix=""
 if [[ " $* " == *" --small "* ]]; then
     suffix="_30M"
 elif [[ " $* " == *" --min "* ]]; then
-    suffix="_1M"
+    suffix="_3M"
 else
     suffix="_3G"
 fi
