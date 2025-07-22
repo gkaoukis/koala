@@ -80,5 +80,4 @@ jobs:
             benchmarks/${{ matrix.benchmark }}/${{ matrix.benchmark }}.hash
             benchmarks/${{ matrix.benchmark }}/${{ matrix.benchmark }}_bash_stats_run*.txt
             infrastructure/static-analysis.pdf
-            infrastructure/target/process-logs/
           if-no-files-found: ignore 
