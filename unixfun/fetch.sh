@@ -23,12 +23,16 @@ do
         if [ ! -f "${input}.txt" ]; then
             wget --no-check-certificate "${URL}/unix50/${input}.txt" || exit 1
         fi
-        if [ ! -f "${input}_3M.txt" ]; then
+        if [ ! -f "${input}_6M.txt" ]; then
             file_content_size=$(wc -c < "${input}.txt")
-            iteration_limit=$((3145728 / $file_content_size))
+            iteration_limit=$((1048576 / $file_content_size))
             for (( i = 0; i < iteration_limit; i++ )); do
-                cat "${input}.txt" >> "${input}_3M.txt"
+                cat "${input}.txt" >> "${input}_1M.txt"
             done
+            for (( i = 0; i < 6; i++ )); do
+                cat "${input}_1M.txt" >> "${input}_6M.txt"
+            done
+            rm "${input}_1M.txt"
         fi
     else
         continue
