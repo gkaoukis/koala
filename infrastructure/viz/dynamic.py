@@ -68,7 +68,6 @@ def get_input_sizes_df(df):
                     continue
                 #print('could not find input size for', file, row['script'], file=stderr)
                 continue
-            size, = relevant['size_bytes']
             size = relevant['size_bytes'].iloc[0]
             total += size
         return total
