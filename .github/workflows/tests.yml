@@ -69,16 +69,14 @@ jobs:
             -w /benchmarks \
             benchmark-env \
             bash -c "./main.sh ${{ matrix.benchmark }} --bare --min --resources"
-     
+
       - name: Upload all benchmark artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.benchmark }}-artifacts-${{ github.sha }}
           path: |
-            benchmarks/${{ matrix.benchmark }}/${{ matrix.benchmark }}.out
-            benchmarks/${{ matrix.benchmark }}/${{ matrix.benchmark }}.err
-            benchmarks/${{ matrix.benchmark }}/${{ matrix.benchmark }}.hash
-            benchmarks/${{ matrix.benchmark }}/${{ matrix.benchmark }}_bash_stats_run*.txt
+            ${{ matrix.benchmark }}/${{ matrix.benchmark }}.*
+            ${{ matrix.benchmark }}/${{ matrix.benchmark }}_bash_stats_run*.txt
             infrastructure/static-analysis.pdf
           if-no-files-found: ignore 
