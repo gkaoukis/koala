@@ -22,11 +22,17 @@ do
     if [ "$size" = "min" ]; then
         if [ ! -f "${input}.txt" ]; then
             wget --no-check-certificate "${URL}/unix50/${input}.txt" || exit 1
-        else 
-            continue
         fi
+        if [ ! -f "${input}_1M.txt" ]; then
+            file_content_size=$(wc -c < "${input}.txt")
+            iteration_limit=$((1048576 / $file_content_size))
+            for (( i = 0; i < iteration_limit; i++ )); do
+                cat "${input}.txt" >> "${input}_1M.txt"
+            done
+        fi
+    else
+        continue
     fi
-
     if [ "$size" = "small" ]; then
         if [ ! -f "${input}_30M.txt" ]; then
             wget --no-check-certificate "${URL}/unix50/small/${input}_30M.txt" || exit 1
