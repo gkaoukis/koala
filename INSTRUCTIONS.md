@@ -32,8 +32,8 @@ For systems that act as a drop-in replacement for the shell can  use Koala's ben
 For example, to apply [the PaSh system](https://www.usenix.org/conference/osdi22/presentation/kallas) to the Koala benchmarks, one can do:
 
 ```sh
-$ export KOALA_SHELL="./pa.sh --width 4"
-$ ./main.sh example-benchmark
+export KOALA_SHELL="./pa.sh --width 4"
+./main.sh example-benchmark
 ```
 
 ## Instructions
@@ -82,7 +82,7 @@ cd benchmarks/<name>
 
 The harness which automates this process and collects/displays metrics is `main.sh`:
 
-```
+```bash
 benchmarks/main.sh              # Drives all benchmarks
 ```
 
@@ -96,6 +96,7 @@ To control the shell interpreter used to run the benchmarks, you can set the
 Koala comes with a Docker image, highly recommended when working on non-Debian systems.
 
 To build and run the Docker image:
+
 ```sh
 # Build the container
 $ docker build -t koala .
@@ -108,6 +109,7 @@ $ sudo docker run -it --rm --cap-add=SYS_PTRACE --cap-add=NET_RAW --cap-add=NET_
 ```
 
 ### Configuration
+
 ```
 Usage: ./main.sh BENCHMARK_NAME [--time|--resources|--bare|args...]
   --min            Run the benchmark with minimal inputs (default)
@@ -126,6 +128,7 @@ Usage: ./main.sh BENCHMARK_NAME [--time|--resources|--bare|args...]
 Flags, apart from those referring to input sizes, can be combined freely (e.g. `--resources --bare -n 5`).
 
 ### Files produced per run
+
 | File (per-run)                                | Contents / Purpose                                                                                 | Generated when …                                              |
 |-----------------------------------------------|----------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
 | `<benchmark>.out` / `<benchmark>.err`         | Stdout / stderr from `execute.sh`.                                                                 | **Always**                                                    |
@@ -135,6 +138,7 @@ Flags, apart from those referring to input sizes, can be combined freely (e.g. `
 | `<benchmark>_time_run<i>.val`                 | Single wall-clock number (seconds) for run *i*.                                                    | Only with **`--time`**                                        |
 
 **Extra files produced when `-n <N>` > 1**
+
 | File (aggregated)                     | Description                                             | Requires flag |
 |---------------------------------------|---------------------------------------------------------|---------------|
 | `<prefix>_stats_aggregated.txt`       | Mean / min / max of every numeric resource metric.      | `--resources` |
@@ -143,45 +147,62 @@ Flags, apart from those referring to input sizes, can be combined freely (e.g. `
 ### Usage examples
 
 1. Plain correctness run for the `unixfun` benchmark:
+
 ```bash
 ./main.sh unixfun
 ```
-2. Run 10 times, record runtimes only:
+
+2.Run 10 times, record runtimes only:
+
 ```bash
 ./main.sh unixfun -n 10 --time
 ```
+
 3. Heavy resource tracing inside Docker – 3 repetitions:
+
 ```bash
 ./main.sh unixfun -n 3 --resources
 ```
+
 4. Lightweight local resource logging (no Docker):
+
 ```bash
 ./main.sh unixfun --resources --bare
 ```
+
 5. Combine timing + resources, forward extra args to benchmark's infrastructure scripts:
+
 ```bash
 ./main.sh unixfun -n 5 --resources --time -- --small --fast
 ```
 
 ### Dynamic Characterization & Analysis
-When running a benchmark with the `--resources` flag, existing process logs in `infrastructure/target/process-logs/` are automatically moved to `infrastructure/target/backup-process-logs/`.
-This ensures clean output when collecting new resource statistics. The new logs are then used to generate dynamic analysis visualizations.
+
+There are two main ways to perform dynamic analysis on the Koala benchmarks:
+
+- **Run a single benchmark via `main.sh` with the `--resources` flag**, which collects resource usage logs for that benchmark. Existing process logs in `infrastructure/target/process-logs/` are automatically moved to `infrastructure/target/backup-process-logs/`. This ensures clean output when collecting new resource statistics. The new logs are then used to generate dynamic analysis visualizations.
+- **Run all benchmarks together using the convenience script `./dynamic-analysis.sh`**, which automates executing all benchmarks, collecting logs, and generating aggregated visualizations in the specified output directory.
 
 #### Running the Dynamic Analysis Separately
+
 You can also run the dynamic analysis independently of the main harness. This is useful for manually generating plots and debugging, while only having to execute each benchmark and avoiding the full setup and cleanup process.
 
-#### Step-by-step:
+#### Step-by-step
+
 1. **Install dependencies**:
+
    ```bash
-   sudo apt-get install -y autoconf automake libtool build-essential cloc
-   pip install --break-system-packages -r "infrastructure/requirements.txt"
+   ./setup.sh
     ```
 
 2. **Run the analysis script manually**:
+
     ```bash
     ./infrastructure/run_dynamic.py benchmark_name
     ```
+
     This generates new process logs in:
+
     ```bash
     infrastructure/target/process-logs/
     ```
@@ -195,21 +216,25 @@ You can also run the dynamic analysis independently of the main harness. This is
    ```
 
 4. **Navigate to the infrastructure directory**:
+
     ```bash
     cd infrastructure
 
 5. **Delete previous analysis output**:
+
     ```bash
     rm -f target/dynamic_analysis.csv
     ```
 
 6. **Regenerate the analysis CSV**:
+
     ```bash
     make target/dynamic_analysis.csv
     ```
 
 7. **Generate the visualizations**:
-    ```bash
+
+    ```python
     python infrastructure/viz/dynamic.py /path/to/output
     ```
 
@@ -217,6 +242,7 @@ This produces benchmark-specific performance plots, showing shell vs command tim
 CPU usage, I/O throughput, and memory footprint, for all benchmarks that have logs present in `infrastructure/target/process-logs/`
 
 #### Anatomy of stats file
+
 ```
 Benchmark Statistics
 ==================================================
@@ -246,37 +272,34 @@ We use [`libdash`](https://github.com/binpash/libdash) to parse and analyze both
 The analysis produces CSV summaries and heatmaps across the benchmark suite, highlighting the use of each shell construct.
 
 1. **Install dependencies**:
+
    ```bash
    sudo apt-get install -y autoconf automake libtool build-essential cloc
    pip install --break-system-packages -r infrastructure/requirements.txt
    ```
-   
+
 2. **Register the benchmark script**:  
    Add the new benchmark’s script pattern to:
    `infrastructure/data/script-globs.json`
    > **Note:** Syntactic analysis only works for **POSIX-compliant** scripts.
 
-3. **Remove previous analysis artifacts**:
+3. **Run the full static analysis and generate plots**:
+   You can now generate the static analysis heatmap with:
+
     ```bash
-    rm -f infrastructure/target/cyclomatic.csv
-    rm -f infrastructure/target/lines_of_code.csv
-    rm -f infrastructure/target/nodes_in_scripts.csv
-    rm -f infrastructure/target/scripts_to_benchmark.csv
+    ./static-analysis.sh plots <output_dir>
     ```
 
-4. **Navigate to the infrastructure directory**:
-    `cd infrastructure`
+    This will:
+    - Clean existing CSVs,
+    - Re-run syntactic and command-level analysis across all registered benchmarks,
+    - Generate updated visualizations in `<output_dir>`.
 
-5. **Regenerate the syntactic analysis artifacts**:
-    `make`
+    The command plot can be generated with:
 
-6. **Generate visualizations**:
+    ```python
+    python infrastructure/viz/commands.py <output_dir>
     ```
-    python infrastructure/viz/syntax.py output_dir
-    python infrastructure/viz/commands.py output_dir
-    ```
-
-These will produce plots summarizing shell syntax usage and external command invocation patterns for all registered benchmarks in the specified `output_dir`.
 
 # Inputs
 
@@ -299,7 +322,7 @@ The table below contains all links to the inputs. Note: Some of these inputs are
 | `unixfun`       | [Github Repo](https://atlas.cs.brown.edu/data/unixfun)                                                 | [Brown](https://atlas.cs.brown.edu/data/unixfun/small) [Zenodo](https://zenodo.org/records/15361083)               | [Brown](https://atlas.cs.brown.edu/data/unixfun/large) [Zenodo](https://zenodo.org/records/15368512)                                      |
 | `web-search`    | [Brown](https://atlas.cs.brown.edu/data/wikipedia_min.tar.gz)                                         | [Brown](https://atlas.cs.brown.edu/data/wikipedia_small.tar.gz) [Zenodo](https://zenodo.org/records/15361083)     | [Brown](https://atlas.cs.brown.edu/data/wikipedia.tar.gz) [Zenodo](https://zenodo.org/records/15368512)                                  |
 
-# Dependencies 
+# Dependencies
 
 Each benchmark includes dependencies across three categories: (1) software packages, (2) input datasets, and (3) miscellaneous dependencies (eg., endpoints, keys, etc.).
 All inputs are permanently stored and available online.
@@ -332,4 +355,3 @@ All inputs are permanently stored and available online.
 | `weather`        | Packages   | python3-pip, unrtf, libarchive-tools, libncurses5-dev, libncursesw5-dev, zstd, liblzma-dev, libbz2-dev, zip                                                                                                                                                                                    |
 | `web-search`     | Inputs     | Wikipedia dump (.html files), Index (.txt file)                                                                                                                                                                                                                                                |
 | `web-search`     | Packages   | p7zip-full, nodejs, npm, pandoc, natural                                                                                                                                                                                                                                                       |
-
