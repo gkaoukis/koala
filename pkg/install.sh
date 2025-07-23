@@ -1,6 +1,7 @@
 #!/bin/bash
 
 sudo apt-get update
+
 sudo apt-get install -y --no-install-recommends  gpg \
     wget \
     git \
@@ -39,6 +40,7 @@ sudo apt-get install -y --no-install-recommends  gpg \
 wget -qO - 'https://proget.makedeb.org/debian-feeds/makedeb.pub' | gpg --dearmor | sudo tee /usr/share/keyrings/makedeb-archive-keyring.gpg > /dev/null
 echo 'deb [signed-by=/usr/share/keyrings/makedeb-archive-keyring.gpg arch=all] https://proget.makedeb.org/ makedeb main' | sudo tee /etc/apt/sources.list.d/makedeb.list > /dev/null
 
+sudo apt-get update
 sudo apt-get install -y --no-install-recommends makedeb
 
 TOP=$(git rev-parse --show-toplevel)
