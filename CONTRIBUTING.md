@@ -34,7 +34,7 @@ Koala aims to remain representative of real-world shell workloads. Contributions
   - This helps reviewers understand the context and motivation behind the benchmark.
   - You can do this by referencing the issue number in the PR description (e.g., “Closes #42”) or using GitHub’s auto-linking. -->
 
-- **Submit a pull request**
+- **Submit a pull request**:
   - Structure your benchmark according to Koala’s layout in the [Instructions](INSTRUCTIONS.md#instructions) section.
   - Make sure to test the benchmark under both local (`--bare`) and Docker execution.
   - Include appropriate input sizes (`--min`, `--small`, `--full`).
