@@ -25,14 +25,14 @@ Koala aims to remain representative of real-world shell workloads. Contributions
 
 ### Steps
 
-- **Open an issue** first, describing your proposed benchmark:
+<!-- - **Open an issue** first, describing your proposed benchmark:
   - What is the use case or workload?
   - Why is it relevant to shell performance or analysis?
   - Are there interesting control constructs, tool usage, or real-world datasets involved?
 
 - **Link your pull request to the issue**:
   - This helps reviewers understand the context and motivation behind the benchmark.
-  - You can do this by referencing the issue number in the PR description (e.g., “Closes #42”) or using GitHub’s auto-linking.
+  - You can do this by referencing the issue number in the PR description (e.g., “Closes #42”) or using GitHub’s auto-linking. -->
 
 - **Submit a pull request**
   - Structure your benchmark according to Koala’s layout in the [Instructions](INSTRUCTIONS.md#instructions) section.
@@ -46,7 +46,7 @@ Koala aims to remain representative of real-world shell workloads. Contributions
   - Include the resulting visualizations and a short summary in the pull request description, or upload them as artifacts. -->
 
 - **Describe and justify the addition**:
-  - In your pull request, include a short paragraph summarizing what the benchmark does, what shell constructs it exercises, and what makes it different from or complementary to existing workloads in Koala.
+  - In your pull request, include a summary of what the benchmark does, what shell constructs it exercises, and what makes it different from or complementary to existing workloads in Koala.
   - Cite the source the benchmark is based on (e.g., a paper, system, dataset, or repository). Here is an example from the KOALA paper:  
     _Example_:  
     > **bio** consists of four programs for processing genomic and transcriptomic data. One script performs population genomics analysis [17, 41], while the other three implement key stages of the TERA-Seq platform [38] for processing and aligning RNA sequences. Inputs include a BAM genome sequencing file [79] and auxiliary data such as gene annotations, totaling 114GB for full inputs. The scripts feature fan-out/fan-in parallelism patterns, opportunities for code de-duplication, workqueue-like parallelism, and operate on large datasets. Smaller input sets (24.3GB) omit much of the optional auxiliary data, providing lighter-weight benchmarking options.
