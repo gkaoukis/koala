@@ -1,4 +1,5 @@
 #!/bin/bash
 
-sudo  --no-install-recommends -y gcc make wget
+sudo apt-get update
+sudo apt-get install --no-install-recommends -y gcc make wget
 
