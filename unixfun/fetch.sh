@@ -33,19 +33,16 @@ do
                 cat "${input}_1M.txt" >> "${input}_6M.txt"
             done
             rm "${input}_1M.txt"
+    	else
+            continue
         fi
-    else
-        continue
-    fi
-    if [ "$size" = "small" ]; then
+    elif [ "$size" = "small" ]; then
         if [ ! -f "${input}_30M.txt" ]; then
             wget --no-check-certificate "${URL}/unix50/small/${input}_30M.txt" || exit 1
         else 
             continue
         fi
-    fi
-
-    if [ "$size" = "full" ]; then 
+    elif [ "$size" = "full" ]; then 
         if [ ! -f "${input}_3G.txt" ]; then
             wget --no-check-certificate "${URL}/unix50/large/${input}_3G.txt" || exit 1
         else
