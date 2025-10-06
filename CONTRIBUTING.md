@@ -64,7 +64,7 @@ Enhancements to Koala's harness (`main.sh`), dynamic/static analysis tools, or D
 
 - Maintain backward compatibility unless explicitly discussed.
 - For larger changes, open an issue first to initiate design discussion.
-- Follow the style and modularization conventions used in the current `infrastructure/` and top-level scripts.
+- Follow the style and modularization conventions used in the current `.tools/` and top-level scripts.
 
 ## 4. Documentation and Usability
 

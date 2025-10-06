@@ -27,7 +27,7 @@ As part of the [ATC'25 Artifact Evaluation process](https://www.usenix.org/confe
 
 ## Benchmarks
 
-Each of the top-level folders (except infrastructure) contains a benchmark set.
+Each of the top-level folders (except .tools) contains a benchmark set.
 Please explore the individual benchmark directories for more details on their specific inputs, dependencies, and usage.
 
 | Benchmark   | Description                                                                 |

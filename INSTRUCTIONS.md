@@ -180,7 +180,7 @@ Flags, apart from those referring to input sizes, can be combined freely (e.g. `
 
 There are two main ways to perform dynamic analysis on the Koala benchmarks:
 
-- **Run a single benchmark via `main.sh` with the `--resources` flag**, which collects resource usage logs for that benchmark. Existing process logs in `infrastructure/target/process-logs/` are automatically moved to `infrastructure/target/backup-process-logs/`. This ensures clean output when collecting new resource statistics. The new logs are then used to generate dynamic analysis visualizations.
+- **Run a single benchmark via `main.sh` with the `--resources` flag**, which collects resource usage logs for that benchmark. Existing process logs in `.tools/target/process-logs/` are automatically moved to `.tools/target/backup-process-logs/`. This ensures clean output when collecting new resource statistics. The new logs are then used to generate dynamic analysis visualizations.
 - **Run all benchmarks together using the convenience script `./dynamic-analysis.sh`**, which automates executing all benchmarks, collecting logs, and generating aggregated visualizations in the specified output directory.
 
 #### Running the Dynamic Analysis Separately
@@ -198,13 +198,13 @@ You can also run the dynamic analysis independently of the main harness. This is
 2. **Run the analysis script manually**:
 
     ```bash
-    ./infrastructure/run_dynamic.py benchmark_name
+    ./.tools/run_dynamic.py benchmark_name
     ```
 
     This generates new process logs in:
 
     ```bash
-    infrastructure/target/process-logs/
+    .tools/target/process-logs/
     ```
 
 3. **(If using Docker)**:  
@@ -212,13 +212,13 @@ You can also run the dynamic analysis independently of the main harness. This is
    If you'd prefer not to copy files, you can instead run the visualizer with the `--text` flag to produce textual output directly:
 
    ```bash
-   infrastructure/viz/dynamic.py --text
+   .tools/viz/dynamic.py --text
    ```
 
-4. **Navigate to the infrastructure directory**:
+4. **Navigate to the .tools directory**:
 
     ```bash
-    cd infrastructure
+    cd .tools
 
 5. **Delete previous analysis output**:
 
@@ -235,11 +235,11 @@ You can also run the dynamic analysis independently of the main harness. This is
 7. **Generate the visualizations**:
 
     ```python
-    python infrastructure/viz/dynamic.py /path/to/output
+    python .tools/viz/dynamic.py /path/to/output
     ```
 
 This produces benchmark-specific performance plots, showing shell vs command time,
-CPU usage, I/O throughput, and memory footprint, for all benchmarks that have logs present in `infrastructure/target/process-logs/`
+CPU usage, I/O throughput, and memory footprint, for all benchmarks that have logs present in `.tools/target/process-logs/`
 
 #### Anatomy of stats file
 
@@ -275,12 +275,12 @@ The analysis produces CSV summaries and heatmaps across the benchmark suite, hig
 
    ```bash
    sudo apt-get install -y autoconf automake libtool build-essential cloc
-   pip install --break-system-packages -r infrastructure/requirements.txt
+   pip install --break-system-packages -r .tools/requirements.txt
    ```
 
 2. **Register the benchmark script**:  
    Add the new benchmark’s script pattern to:
-   `infrastructure/data/script-globs.json`
+   `.tools/data/script-globs.json`
    > **Note:** Syntactic analysis only works for **POSIX-compliant** scripts.
 
 3. **Run the full static analysis and generate plots**:
@@ -298,7 +298,7 @@ The analysis produces CSV summaries and heatmaps across the benchmark suite, hig
     The command plot can be generated with:
 
     ```python
-    python infrastructure/viz/commands.py <output_dir>
+    python .tools/viz/commands.py <output_dir>
     ```
 
 # Inputs

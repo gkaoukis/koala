@@ -12,4 +12,4 @@ python3 -m venv "$VENV_DIR"
 source "$VENV_DIR/bin/activate"
 
 pip install --upgrade pip
-pip install --break-system-packages -r "$TOP/infrastructure/requirements.txt"
+pip install --break-system-packages -r "$TOP/.tools/requirements.txt"

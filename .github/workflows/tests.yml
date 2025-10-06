@@ -60,7 +60,7 @@ jobs:
             -v ${{ github.workspace }}:/benchmarks \
             -w /benchmarks \
             benchmark-env \
-            bash -c "./infrastructure/static-analysis.sh static-analysis.pdf"
+            bash -c "./.tools/static-analysis.sh static-analysis.pdf"
 
       - name: Run Benchmark ${{ matrix.benchmark }} (min)
         run: |
@@ -78,5 +78,5 @@ jobs:
           path: |
             ${{ matrix.benchmark }}/${{ matrix.benchmark }}.*
             ${{ matrix.benchmark }}/${{ matrix.benchmark }}_bash_stats_run*.txt
-            infrastructure/static-analysis.pdf
+            .tools/static-analysis.pdf
           if-no-files-found: ignore 

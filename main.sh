@@ -252,7 +252,7 @@ main() {
             ./fetch.sh "${args[@]}" ||
                 error "Failed to fetch inputs for $BENCHMARK"
             if [[ "$measure_resources" == true ]]; then
-                python3 $TOP/infrastructure/create_size_inputs_json.py ||
+                python3 $TOP/.tools/create_size_inputs_json.py ||
                     error "Failed to calculate input sizes"
             fi
         fi
@@ -270,19 +270,19 @@ main() {
                 echo "Please run setup.sh first to install dependencies."
                 exit 1
             fi
-            log 2 "Backing up process logs from previous runs in $TOP/infrastructure/target/backup-process-logs"
-            mkdir -p "$TOP/infrastructure/target/process-logs"
-            mkdir -p "$TOP/infrastructure/target/backup-process-logs"
-            find "$TOP/infrastructure/target/process-logs" -type f \
-                -exec mv {} "$TOP/infrastructure/target/backup-process-logs/" \; || true
-            rm -f "$TOP"/infrastructure/target/process-logs/*
-            rm -f "$TOP"/infrastructure/target/dynamic_analysis.jsonl
+            log 2 "Backing up process logs from previous runs in $TOP/.tools/target/backup-process-logs"
+            mkdir -p "$TOP/.tools/target/process-logs"
+            mkdir -p "$TOP/.tools/target/backup-process-logs"
+            find "$TOP/.tools/target/process-logs" -type f \
+                -exec mv {} "$TOP/.tools/target/backup-process-logs/" \; || true
+            rm -f "$TOP"/.tools/target/process-logs/*
+            rm -f "$TOP"/.tools/target/dynamic_analysis.jsonl
 
             cd "$TOP" || exit 1
-            log 2 "Running: python3 $TOP/infrastructure/run_dynamic.py $BENCHMARK ${args[*]}"
-            python3 "$TOP/infrastructure/run_dynamic.py" "$BENCHMARK" "${args[@]}" || error "Failed to run $BENCHMARK"
+            log 2 "Running: python3 $TOP/.tools/run_dynamic.py $BENCHMARK ${args[*]}"
+            python3 "$TOP/.tools/run_dynamic.py" "$BENCHMARK" "${args[@]}" || error "Failed to run $BENCHMARK"
 
-            cd "$TOP/infrastructure" || exit 1
+            cd "$TOP/.tools" || exit 1
             make target/dynamic_analysis.jsonl
             python3 viz/dynamic.py "$TOP/$BENCHMARK" >/dev/null
             if [[ -f "$TOP/$BENCHMARK/benchmark_stats.txt" ]]; then
@@ -295,9 +295,9 @@ main() {
                 error "Failed to generate benchmark stats"
             fi
 
-            log 2 "Moving backup-process logs back to $TOP/infrastructure/target/process-logs"
-            find "$TOP/infrastructure/target/backup-process-logs" -type f \
-                -exec mv {} "$TOP/infrastructure/target/process-logs/" \; || true
+            log 2 "Moving backup-process logs back to $TOP/.tools/target/process-logs"
+            find "$TOP/.tools/target/backup-process-logs" -type f \
+                -exec mv {} "$TOP/.tools/target/process-logs/" \; || true
             cd "$TOP/$BENCHMARK" || exit 1
 
         elif $measure_time; then
@@ -371,7 +371,7 @@ main() {
     done
 
     if [[ $measure_resources == true && ${#stats_files[@]} -gt 1 ]]; then
-        agg_script="$TOP/infrastructure/aggregate_stats.py"
+        agg_script="$TOP/.tools/aggregate_stats.py"
         if [[ -f $agg_script ]]; then
             log 2 "Aggregating stats files: ${stats_files[*]}"
             python3 "$agg_script" "${stats_files[@]}" \
