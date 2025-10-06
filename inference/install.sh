@@ -38,7 +38,7 @@ else
 fi
 ollama serve > /dev/null 2>&1 &
 sleep 5
-ollama pull gemma3
+ollama pull moondream:latest
 
 ollama_pid=$(pgrep ollama)
 kill $ollama_pid

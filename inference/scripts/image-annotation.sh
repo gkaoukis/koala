@@ -5,9 +5,8 @@ OUT=$2
 mkdir -p "$OUT"
 
 ollama serve > /dev/null 2>&1 &
-ollama pull gemma3
 find "$IN" -type f -iname "*.jpg" | while IFS= read -r img; do
-    title=$(llm -m gemma3 \
+    title=$(llm -m moondream:latest \
         "Your only output should be a **single** small title for this image:" \
         -a "$img" -o seed 0 -o temperature 0 < /dev/null)
 
