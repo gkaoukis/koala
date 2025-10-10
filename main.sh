@@ -170,7 +170,7 @@ main() {
 
     shell_word=${KOALA_SHELL%% *}
     shell_word=${shell_word##*/}
-    shell_safe=${shell_word//[^A-Za-z0-9_.-]/_}
+    shell_safe=$(printf '%s\n' "$shell_word" | sed 's/[^A-Za-z0-9_.-]/_/g')
     log 1 echo "Using shell: $KOALA_SHELL"
     stats_prefix="${BENCHMARK}_${shell_safe}_stats"
     time_values=""
