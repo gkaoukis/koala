@@ -191,8 +191,7 @@ main() {
     log 2 "Main args: $main_args"
     
     if [ "$run_locally" = "false" ]; then
-        for var in $(set | grep '^KOALA_' | cut -d= -f1); do
-            eval "val=\$$var"
+        set | grep '^KOALA_' | while IFS='=' read -r var val; do
             log 2 "Env $var: $val"
         done
 
