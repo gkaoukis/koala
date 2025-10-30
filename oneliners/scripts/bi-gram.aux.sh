@@ -90,7 +90,3 @@ bigram_aux_reduce()
 
     rm $temp
 }
-
-export -f bigrams_aux
-export -f bigram_aux_map
-export -f bigram_aux_reduce

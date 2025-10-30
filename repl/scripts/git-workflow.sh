@@ -1,8 +1,6 @@
 #!/bin/bash
 # source: posh benchmark suite
 
-shopt -s expand_aliases
-
 alias g='git'
 alias gst='git status'
 alias gco='git checkout'
