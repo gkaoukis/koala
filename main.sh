@@ -200,7 +200,7 @@ main() {
         log 2 "Pulling image: $DOCKER_IMAGE"
         $KOALA_CONTAINER_CMD pull "$DOCKER_IMAGE"
 
-        USER_FLAGS="-u $(id -u):$(id -g) -e HOST_UID=$(id -u) -e HOST_GID=$(id -g)"
+        USER_FLAGS="-e HOST_UID=$(id -u) -e HOST_GID=$(id -g)"
 
         if [ "$prune" = "true" ]; then
             log 1 "Running with prune mode: starting clean container"
