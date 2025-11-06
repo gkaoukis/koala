@@ -1,5 +1,4 @@
-#!/bin/bash
-# source: posh benchmark suite
+#!/bin/sh 
 
 alias g='git'
 alias gst='git status'
