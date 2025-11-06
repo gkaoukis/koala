@@ -47,21 +47,61 @@ scripts_inputs=(
 )
 
 suffix=""
-if [[ " $* " == *" --small "* ]]; then
-    suffix="_30M"
-elif [[ " $* " == *" --min "* ]]; then
-    suffix="_6M"
-else
+selected_scripts=""
+size="full"
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --small)
+            suffix="_30M"
+            size="small"
+            shift
+            ;;
+        --min)
+            suffix="_6M"
+            size="min"
+            shift
+            ;;
+        -s|--scripts)
+            shift
+            while [ $# -gt 0 ] && [ "$(echo "$1" | cut -c1)" != "-" ]; do
+                if [ -z "$selected_scripts" ]; then
+                    selected_scripts="$1"
+                else
+                    selected_scripts="$selected_scripts $1"
+                fi
+                shift
+            done
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
+
+# Set default suffix if not set
+if [ -z "$suffix" ]; then
     suffix="_3G"
+    size="full"
 fi
 
 echo "executing unixfun $(date)"
 
-mkdir -p "outputs"
+mkdir -p "outputs/$size"
 KOALA_SHELL=${KOALA_SHELL:-bash}
 export BENCHMARK_CATEGORY="unixfun"
 
-export LC_ALL=C
+should_run() {
+    script_name=$1
+    if [ -z "$selected_scripts" ]; then
+        return 0
+    fi
+    for selected in $selected_scripts; do
+        if [ "$selected" = "$script_name" ]; then
+            return 0
+        fi
+    done
+    return 1
+}
 
 for script_input in "${scripts_inputs[@]}"; do
     IFS=";" read -r -a parsed <<< "${script_input}"
@@ -69,18 +109,20 @@ for script_input in "${scripts_inputs[@]}"; do
     script=${parsed[0]}
     input=${parsed[1]}
 
-    script_file="./scripts/$script.sh"
-    input_file="./inputs/${input}${suffix}.txt"
-    output_file="./outputs/$script.out"
+    if should_run "$script"; then
+        script_file="./scripts/$script.sh"
+        input_file="./inputs/${input}${suffix}.txt"
+        output_file="./outputs/$size/$script.out"
 
 
-    BENCHMARK_SCRIPT="$(realpath "$script_file")"
-    export BENCHMARK_SCRIPT
+        BENCHMARK_SCRIPT="$(realpath "$script_file")"
+        export BENCHMARK_SCRIPT
 
-    BENCHMARK_INPUT_FILE="$(realpath "$input_file")"
-    export BENCHMARK_INPUT_FILE
-    
-    echo "$script"
-    $KOALA_SHELL "$script_file" "$input_file" > "$output_file"
-    echo $?
+        BENCHMARK_INPUT_FILE="$(realpath "$input_file")"
+        export BENCHMARK_INPUT_FILE
+        
+        echo "$script"
+        $KOALA_SHELL "$script_file" "$input_file" > "$output_file"
+        echo $?
+    fi
 done

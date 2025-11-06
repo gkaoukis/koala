@@ -8,21 +8,48 @@ TOP=$(git rev-parse --show-toplevel)
 eval_dir="${TOP}/oneliners"
 scripts_dir="${eval_dir}/scripts"
 input_dir="${eval_dir}/inputs"
-outputs_dir="${eval_dir}/outputs"
-mkdir -p "$outputs_dir"
 export TIMEFORMAT=%R
 
 KOALA_SHELL=${KOALA_SHELL:-bash}
 export BENCHMARK_CATEGORY="oneliners"
 size=full
-for arg in "$@"; do
-    case "$arg" in
-        --small) size=small ;;
-        --min)   size=min ;;
+selected_scripts=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --small)
+            size=small
+            shift
+            ;;
+        --min)
+            size=min
+            shift
+            ;;
+        --full)
+            size=full
+            shift
+            ;;
+        -s|--scripts)
+            shift
+            while [ $# -gt 0 ] && [ "$(echo "$1" | cut -c1)" != "-" ]; do
+                if [ -z "$selected_scripts" ]; then
+                    selected_scripts="$1"
+                else
+                    selected_scripts="$selected_scripts $1"
+                fi
+                shift
+            done
+            ;;
+        *)
+            shift
+            ;;
     esac
 done
+outputs_dir="${eval_dir}/outputs/$size"
+mkdir -p "$outputs_dir"
 export LC_ALL=C
-if [[ $size == "small" ]]; then
+
+if [ "$size" = "small" ]; then
     scripts_inputs=(
         "nfa-regex;10M"
         "sort;30M"
@@ -40,7 +67,7 @@ if [[ $size == "small" ]]; then
     chess_input="$input_dir/chessdata_small"
     comm_input="$input_dir/comm_small"
 
-elif [[ $size == "min" ]]; then
+elif [ "$size" = "min" ]; then
     scripts_inputs=(
         "nfa-regex;1M"
         "sort;1M"
@@ -77,43 +104,65 @@ else
     comm_input="$input_dir/comm_full"
 fi
 
-export LC_ALL=C
+should_run() {
+    script_name=$1
+    if [ -z "$selected_scripts" ]; then
+        return 0
+    fi
+    for selected in $selected_scripts; do
+        if [ "$selected" = "$script_name" ]; then
+            return 0
+        fi
+    done
+    return 1
+}
 
 for script_input in "${scripts_inputs[@]}"
 do
-    if [[ "$script_input" != "opt-parallel"* ]] && [[ "$script_input" != "comm"* ]]; then
-        IFS=";" read -r -a parsed <<< "${script_input}"
-        script_file="$scripts_dir/${parsed[0]}.sh"
-        input_file="$input_dir/${parsed[1]}.txt"
-        output_file="$outputs_dir/${parsed[0]}.out"
+    case "$script_input" in
+        opt-parallel*)
+            if should_run "opt-parallel"; then
+                IFS=";" read -r -a parsed <<< "${script_input}"
+                script_file="$scripts_dir/${parsed[0]}.sh"
+                echo "$script_file"
+                export BENCHMARK_INPUT_FILE="${chess_input}"
+                BENCHMARK_SCRIPT="$(realpath "$script_file")"
+                export BENCHMARK_SCRIPT
+                $KOALA_SHELL "$script_file" "$chess_input" > "${outputs_dir}/opt-parallel.out"
+                echo "$?"
+            fi
+            ;;
+        comm*)
+            if should_run "comm"; then
+                IFS=";" read -r -a parsed <<< "${script_input}"
+                script_file="$scripts_dir/${parsed[0]}.sh"
+                echo "$script_file"
+                export BENCHMARK_INPUT_FILE="${comm_input}"
+                BENCHMARK_SCRIPT="$(realpath "$script_file")"
+                export BENCHMARK_SCRIPT
+                $KOALA_SHELL "$script_file" "${comm_input}" > "${outputs_dir}/comm.out"
+                echo "$?"
+            fi
+            ;;
+        *)
+            IFS=";" read -r -a parsed <<< "${script_input}"
+            script_name="${parsed[0]}"
+            
+            if should_run "$script_name"; then
+                script_file="$scripts_dir/${parsed[0]}.sh"
+                input_file="$input_dir/${parsed[1]}.txt"
+                output_file="$outputs_dir/${parsed[0]}.out"
 
-        echo "$script_file"
-        BENCHMARK_INPUT_FILE="$(realpath "$input_file")"
-        export BENCHMARK_INPUT_FILE
+                echo "$script_file"
+                BENCHMARK_INPUT_FILE="$(realpath "$input_file")"
+                export BENCHMARK_INPUT_FILE
 
-        BENCHMARK_SCRIPT="$(realpath "$script_file")"
-        export BENCHMARK_SCRIPT
-        
-        $KOALA_SHELL "$script_file" "$input_file" > "$output_file"
-        echo "$?"
-    elif [[ "$script_input" == "opt-parallel"* ]]; then
-        IFS=";" read -r -a parsed <<< "${script_input}"
-        script_file="$scripts_dir/${parsed[0]}.sh"
-        echo "$script_file"
-        export BENCHMARK_INPUT_FILE="${chess_input}"
-        BENCHMARK_SCRIPT="$(realpath "$script_file")"
-        export BENCHMARK_SCRIPT
-        $KOALA_SHELL "$script_file" "$chess_input" > "${outputs_dir}/opt-parallel_$size.out"
-        echo "$?"
-    else
-        IFS=";" read -r -a parsed <<< "${script_input}"
-        script_file="$scripts_dir/${parsed[0]}.sh"
-        echo "$script_file"
-        export BENCHMARK_INPUT_FILE="${comm_input}"
-        BENCHMARK_SCRIPT="$(realpath "$script_file")"
-        export BENCHMARK_SCRIPT
-        $KOALA_SHELL "$script_file" "${comm_input}" > "${outputs_dir}/comm_$size.out"
-        echo "$?"
-    fi
+                BENCHMARK_SCRIPT="$(realpath "$script_file")"
+                export BENCHMARK_SCRIPT
+                
+                $KOALA_SHELL "$script_file" "$input_file" > "$output_file"
+                echo "$?"
+            fi
+            ;;
+    esac
 done
-

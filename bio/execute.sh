@@ -21,12 +21,33 @@ done
 
 size=full
 subset=false
-for arg in "$@"; do
-    case "$arg" in
-    --small) size=full # small uses a subset of full inputs
-    subset=true
-    ;;
-    --min) size=min ;;
+selected_scripts=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --small)
+            size=full
+            subset=true
+            shift
+            ;;
+        --min)
+            size=min
+            shift
+            ;;
+        -s|--scripts)
+            shift
+            while [ $# -gt 0 ] && [ "$(echo "$1" | cut -c1)" != "-" ]; do
+                if [ -z "$selected_scripts" ]; then
+                    selected_scripts="$1"
+                else
+                    selected_scripts="$selected_scripts $1"
+                fi
+                shift
+            done
+            ;;
+        *)
+            shift
+            ;;
     esac
 done
 
@@ -37,36 +58,54 @@ KOALA_SHELL="${KOALA_SHELL:-bash}"
 export BENCHMARK_CATEGORY="bio"
 export KOALA_SHELL
 
-script_file="./scripts/bio.sh"
-BENCHMARK_SCRIPT="$(realpath "$script_file")"
-export BENCHMARK_SCRIPT
+should_run() {
+    script_name=$1
+    if [ -z "$selected_scripts" ]; then
+        return 0
+    fi
+    for selected in $selected_scripts; do
+        if [ "$selected" = "$script_name" ]; then
+            return 0
+        fi
+    done
+    return 1
+}
 
-BENCHMARK_INPUT_FILE="$(realpath "$IN")"
-export BENCHMARK_INPUT_FILE
+if should_run "bio"; then
+    script_file="./scripts/bio.sh"
+    BENCHMARK_SCRIPT="$(realpath "$script_file")"
+    export BENCHMARK_SCRIPT
 
-$KOALA_SHELL "$script_file" "$IN" "$IN_NAME" "$OUT"
+    BENCHMARK_INPUT_FILE="$(realpath "$IN")"
+    export BENCHMARK_INPUT_FILE
+
+    $KOALA_SHELL "$script_file" "$IN" "$IN_NAME" "$OUT"
+fi
 
 # Note: The 'data.sh' script must be run first
 teraseq_script_names="data
 run_dRNASeq
 run_5TERA"
 
-if [[ "$size" == "min" ]]; then
-    exit 0;
+if [ "$size" = "min" ]; then
+    exit 0
 fi
 
-if [[ "$subset" == true ]]; then
+if [ "$subset" = true ]; then
 teraseq_script_names="data
 run_dRNASeq"
 fi
+
 BENCHMARK_INPUT_FILE="$(realpath "inputs/full")"
 export BENCHMARK_INPUT_FILE
 while IFS= read -r script; do
-    script_file="./scripts/$script.sh"
-    BENCHMARK_SCRIPT="$(realpath "$script_file")"
-    export BENCHMARK_SCRIPT
+    if should_run "$script"; then
+        script_file="./scripts/$script.sh"
+        BENCHMARK_SCRIPT="$(realpath "$script_file")"
+        export BENCHMARK_SCRIPT
 
-    echo "$script"
-    $KOALA_SHELL "$script_file"
-    echo "$?"
+        echo "$script"
+        $KOALA_SHELL "$script_file"
+        echo "$?"
+    fi
 done <<< "$teraseq_script_names"
