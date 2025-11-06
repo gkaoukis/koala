@@ -101,7 +101,7 @@ command -v seqkit >/dev/null 2>&1 || {
     -o /tmp/seqkit.tar.gz \
   && \
   # extract just the `seqkit` executable into /tmp
-  tar -xzf /tmp/seqkit.tar.gz -C /tmp seqkit \
+  tar -xzf /tmp/seqkit.tar.gz -C /tmp seqkit --no-same-owner \
   && \
   mv /tmp/seqkit /usr/local/bin/seqkit \
   && chmod +x /usr/local/bin/seqkit \
