@@ -70,7 +70,7 @@ if [[ "$size" == "small" ]]; then
         archive="chessdata_small.tar.gz"
         wget --no-check-certificate "$URL/oneliners/$archive" -O "$archive"
         mkdir -p "chessdata_small"
-        tar -xzf "$archive" -C "chessdata_small"
+        tar -xzf "$archive" -C "chessdata_small" --no-same-owner
         rm "$archive"
     fi
     rm 1M.txt
@@ -80,7 +80,7 @@ elif [[ "$size" == "min" ]]; then
         archive="chessdata_min.tar.gz"
         wget --no-check-certificate "$URL/oneliners/$archive" -O "$archive"
         mkdir -p "chessdata_min"
-        tar -xzf "$archive" -C "chessdata_min"
+        tar -xzf "$archive" -C "chessdata_min" --no-same-owner
         rm "$archive"
     fi
     exit 0
@@ -105,7 +105,7 @@ if [ ! -d ./chessdata ]; then
     archive="chessdata.tar.gz"
     wget --no-check-certificate "$URL/oneliners/$archive" -O "$archive"
     mkdir -p "chessdata"
-    tar -xzf "$archive" -C "chessdata"
+    tar -xzf "$archive" -C "chessdata" --no-same-owner
     rm "$archive"
 fi
 rm 1M.txt
