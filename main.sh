@@ -33,6 +33,7 @@ usage() {
     echo "  --clean, -c      Run the full cleanup script (both inputs and outputs)"
     echo "  --keep, -k       Keep outputs"
     echo "  --prune          Run the benchmark on a fresh container (will need to re-download everything on each run)"
+    echo "  --scripts, -s    Specify which scripts to run (space-separated list)"
     echo "  --quiet, -q      Suppress non-essential output (alias for --verbose 0)"
     echo "  --verbose N      Verbosity level: 0=silent, 1=info (default), 2=debug"
     echo "  --help, -h       Show this help message"
@@ -60,6 +61,7 @@ main() {
     runs=1
     size="min"
     verbosity=1
+    selected_scripts=""
 
     args=""
     main_args=""
@@ -105,6 +107,20 @@ main() {
             prune=true
             main_args="$main_args $1"
             shift
+            ;;
+        --scripts | -s)
+            shift
+            scripts_arg="--scripts"
+            while [ $# -gt 0 ] && [ "$(echo "$1" | cut -c1)" != "-" ]; do
+                if [ -z "$selected_scripts" ]; then
+                    selected_scripts="$1"
+                else
+                    selected_scripts="$selected_scripts $1"
+                fi
+                scripts_arg="$scripts_arg $1"
+                shift
+            done
+            args="$args $scripts_arg"
             ;;
         --quiet | -q)
             verbosity=0
@@ -200,7 +216,7 @@ main() {
         log 2 "Pulling image: $DOCKER_IMAGE"
         $KOALA_CONTAINER_CMD pull "$DOCKER_IMAGE"
 
-        USER_FLAGS="-e HOST_UID=$(id -u) -e HOST_GID=$(id -g)"
+        USER_FLAGS="-u $(id -u):$(id -g) -e HOST_UID=$(id -u) -e HOST_GID=$(id -g)"
 
         if [ "$prune" = "true" ]; then
             log 1 "Running with prune mode: starting clean container"
