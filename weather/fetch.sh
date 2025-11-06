@@ -45,7 +45,7 @@ if [[ "$size" == "small" ]]; then
         echo "Failed to download $data_url"
         exit 1
     }
-    tar -xzf "$input_dir/temperatures.small.tar.gz" -C "$input_dir" || {
+    tar -xzf "$input_dir/temperatures.small.tar.gz" -C "$input_dir" --no-same-owner || {
         echo "Failed to extract $input_dir/temperatures.small.tar.gz"
         exit 1
     }
@@ -65,7 +65,7 @@ wget --no-check-certificate "$data_url" -O "$input_dir/temperatures.full.tar.gz"
     echo "Failed to download $data_url"
     exit 1
 }
-tar -xzf "$input_dir/temperatures.full.tar.gz" -C "$input_dir" || {
+tar -xzf "$input_dir/temperatures.full.tar.gz" -C "$input_dir" --no-same-owner || {
     echo "Failed to extract $input_dir/temperatures.full.tar.gz"
     exit 1
 }

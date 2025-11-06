@@ -92,7 +92,7 @@ if [[ "$size" == "small" ]]; then
         echo "Failed to download $data_url"
         exit 1
     }
-    tar -xzf "$input_dir/playlist_small.tar.gz" -C "$input_dir" || {
+    tar -xzf "$input_dir/playlist_small.tar.gz" -C "$input_dir" --no-same-owner || {
         echo "Failed to extract $input_dir/playlist_small.tar.gz"
         exit 1
     }

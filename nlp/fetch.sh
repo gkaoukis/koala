@@ -39,7 +39,7 @@ if [[ "$size" == "small" ]]; then
             echo "Failed to download pg-small.tar.gz"
             exit 1
         fi
-        tar -xzf pg-small.tar.gz
+        tar -xzf pg-small.tar.gz --no-same-owner
         rm pg-small.tar.gz
     fi
     exit 0
@@ -68,7 +68,7 @@ if [ ! -e ./pg ]; then
         echo "Failed to download pg.tar.gz"
         exit 1
     fi
-    tar -xzf pg.tar.gz
+    tar -xzf pg.tar.gz --no-same-owner
     rm pg.tar.gz
     exit 0
 fi

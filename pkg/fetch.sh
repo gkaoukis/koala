@@ -24,7 +24,7 @@ fi
 
 if [ ! -d node_modules ]; then
   wget "$URL/prog-inf/node_modules.tar.gz" -O node_modules.tar.gz
-  tar xf node_modules.tar.gz
+  tar xf node_modules.tar.gz --no-same-owner
   rm node_modules.tar.gz
 fi
 

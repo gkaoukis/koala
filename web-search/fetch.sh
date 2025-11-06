@@ -33,7 +33,7 @@ if [[ ! -d "$in/articles$suffix" ]]; then
 			wget -O $in/wikipedia$suffix.tar.gz "${URL}/wikipedia/input_small/articles.tar.gz" --no-check-certificate
 			wget -O $in/index$suffix.txt "${URL}/wikipedia/input_small/index.txt" --no-check-certificate
 			echo "Extracting the min dataset."
-			tar -xf $in/wikipedia$suffix.tar.gz -C $in
+			tar -xf $in/wikipedia$suffix.tar.gz -C $in --no-same-owner
 			mv $in/articles $in/articles$suffix
 		elif $is_small; then
 			# 1gb entries
@@ -41,7 +41,7 @@ if [[ ! -d "$in/articles$suffix" ]]; then
 			wget --no-check-certificate -O $in/wikipedia$suffix.tar.gz "${URL}/wikipedia/wikipedia1g.tar.gz"
 			wget --no-check-certificate -O $in/index$suffix.txt "${URL}/wikipedia/index1g.txt"
 			echo "Extracting the small dataset."
-			tar -xf $in/wikipedia$suffix.tar.gz -C $in
+			tar -xf $in/wikipedia$suffix.tar.gz -C $in --no-same-owner
 			mv $in/articles1g $in/articles$suffix
 		else
 			# full dataset
@@ -49,12 +49,12 @@ if [[ ! -d "$in/articles$suffix" ]]; then
 			wget --no-check-certificate -O $in/wikipedia$suffix.tar.gz "${URL}/wikipedia/wikipedia10g.tar.gz"
 			wget --no-check-certificate -O $in/index$suffix.txt "${URL}/wikipedia/index10g.txt"
 			echo "Extracting the full dataset."
-			tar -xf $in/wikipedia$suffix.tar.gz -C $in
+			tar -xf $in/wikipedia$suffix.tar.gz -C $in --no-same-owner
 			mv $in/articles10g $in/articles$suffix
 		fi
 	else
 		echo "Extracting dataset."
-		tar -xf $in/wikipedia$suffix.tar.gz -C $in
+		tar -xf $in/wikipedia$suffix.tar.gz -C $in --no-same-owner
 	fi
 else
 	echo "Dataset already exists."

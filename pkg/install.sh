@@ -35,7 +35,8 @@ sudo apt-get install -y --no-install-recommends  gpg \
     libselinux-dev \
     libtool \
     libtool-bin \
-    libreadline-dev
+    libreadline-dev \
+    npm
 
 wget -qO - 'https://proget.makedeb.org/debian-feeds/makedeb.pub' | gpg --dearmor | sudo tee /usr/share/keyrings/makedeb-archive-keyring.gpg > /dev/null
 echo 'deb [signed-by=/usr/share/keyrings/makedeb-archive-keyring.gpg arch=all] https://proget.makedeb.org/ makedeb main' | sudo tee /etc/apt/sources.list.d/makedeb.list > /dev/null
@@ -52,7 +53,7 @@ cd "$installdir" || exit 1
 # Install mir-sa
 if [ ! -d mir-sa ]; then
   wget "$URL/prog-inf/mir-sa.tar.gz" -O mir-sa.tar.gz
-  tar xf mir-sa.tar.gz
+  tar xf mir-sa.tar.gz --no-same-owner
   rm mir-sa.tar.gz
 fi
 
