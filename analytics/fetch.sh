@@ -23,7 +23,7 @@ fi
 if [[ "$size" == "min" ]]; then
     if [[ ! -d "$input_dir/ray_tracing_$size" ]]; then    
         wget --no-check-certificate $URL/log-analysis/ray_tracing_$size.tar.gz -O "$input_dir/ray_tracing_$size.tar.gz"
-        tar -xzf "$input_dir/ray_tracing_$size.tar.gz" -C "$input_dir"
+        tar -xzf"$input_dir/ray_tracing_$size.tar.gz" -C "$input_dir" --no-same-owner
         rm "$input_dir/ray_tracing_$size.tar.gz"
     fi
     if [[ ! -d "$input_dir/pcaps_$size" ]]; then
@@ -36,14 +36,14 @@ if [[ "$size" == "min" ]]; then
     fi
     if  [[ ! -d "$input_dir/port_scan_$size" ]]; then
         wget --no-check-certificate $URL/log-analysis/port_scan_$size.tar.gz -O "$input_dir/port_scan_$size.tar.gz"
-        tar -xzf "$input_dir/port_scan_$size.tar.gz" -C "$input_dir"
+        tar -xzf"$input_dir/port_scan_$size.tar.gz" -C "$input_dir" --no-same-owner
         rm "$input_dir/port_scan_$size.tar.gz"
     fi
     exit 0
 elif [[ "$size" == "small" ]]; then
     if [[ ! -d "$input_dir/ray_tracing_$size" ]]; then  
         wget --no-check-certificate $URL/log-analysis/ray_tracing_$size.tar.gz -O "$input_dir/ray_tracing_$size.tar.gz"
-        tar -xzf "$input_dir/ray_tracing_$size.tar.gz" -C "$input_dir"
+        tar -xzf"$input_dir/ray_tracing_$size.tar.gz" -C "$input_dir" --no-same-owner
         rm "$input_dir/ray_tracing_$size.tar.gz"
     fi
     if [[ ! -d "$input_dir/pcaps_$size" ]]; then
@@ -61,14 +61,14 @@ elif [[ "$size" == "small" ]]; then
     fi
     if [[ ! -d "$input_dir/port_scan_$size" ]]; then
         wget --no-check-certificate $URL/log-analysis/port_scan_$size.tar.gz -O "$input_dir/port_scan_$size.tar.gz"
-        tar -xzf "$input_dir/port_scan_$size.tar.gz" -C "$input_dir"
+        tar -xzf"$input_dir/port_scan_$size.tar.gz" -C "$input_dir" --no-same-owner
         rm "$input_dir/port_scan_$size.tar.gz"
     fi
     exit 0
 else
     if [[ ! -d "$input_dir/ray_tracing_$size" ]]; then 
         wget --no-check-certificate $URL/log-analysis/ray_tracing_$size.tar.gz -O "$input_dir/ray_tracing_$size.tar.gz"
-        tar -xzf "$input_dir/ray_tracing_$size.tar.gz" -C "$input_dir"
+        tar -xzf"$input_dir/ray_tracing_$size.tar.gz" -C "$input_dir" --no-same-owner
         rm "$input_dir/ray_tracing_$size.tar.gz"
     fi
     if [[ ! -d "$input_dir/pcaps_$size" ]]; then
@@ -98,7 +98,7 @@ else
     fi
     if [[ ! -d "$input_dir/port_scan_$size" ]]; then
         wget --no-check-certificate $URL/log-analysis/port_scan_$size.tar.gz -O "$input_dir/port_scan_$size.tar.gz"
-        tar -xzf "$input_dir/port_scan_$size.tar.gz" -C "$input_dir"
+        tar -xzf"$input_dir/port_scan_$size.tar.gz" -C "$input_dir" --no-same-owner
         rm "$input_dir/port_scan_$size.tar.gz"
     fi
 fi
