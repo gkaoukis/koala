@@ -2429,6 +2429,71 @@ reader() {
   } 2>&3
 }
 
+file_reader() {
+  local game_pid="$1" filename="$2" 
+  
+  # Safety Check
+  if [ -z "$filename" ] || [ ! -f "$filename" ]; then
+    echo "Error: Input file '$filename' not found." >&2
+    exit 1
+  fi
+
+  exec 3>&2 2>/dev/null
+
+  # PIPELINE STRUCTURE FIX:
+  # We combine the fake PID header (0) and the file content (via fold)
+  # and pipe it into the main logic block.
+  { 
+    echo "0"              # Fake PID line for the 'read inkey_pid' below
+    fold -w1 "$filename"  # The actual file content, 1 char per line
+  } | {
+    # This block receives the pipe on stdin. 
+    # Because the logic is inside { }, traps work correctly here.
+    
+    local my_pid='' inkey_pid='' key='' capture=false
+
+    trap 'exit' $SIGNAL_TERM
+    trap 'capture=true' $SIGNAL_CAPTURE_INPUT
+    trap 'capture=false' $SIGNAL_RELEASE_INPUT
+
+    # 1. Handshake (Read the "0" we echoed above)
+    read inkey_pid 
+
+    # 2. Register Process with Controller
+    get_pid my_pid
+    send_cmd "$NOTIFY_PID $PROCESS_INKEY $my_pid"
+    send_cmd "$NOTIFY_PID $PROCESS_READER $my_pid"
+
+    # 3. Process the file input
+    while exist_process "$game_pid"; do
+      
+      # Wait for the "Capture" signal (Game start / Animation finish)
+      # This variable is now correctly updated by the trap!
+      while ! "$capture"; do 
+        sleep 0.1
+        exist_process "$game_pid" || break 2
+      done
+
+      # Read next move from our pipe
+      IFS= read -r key || break
+
+      # Delay to allow game tick to process move
+      sleep 0.05
+
+      case "$key" in
+        4) send_cmd "$LEFT" ;;
+        6) send_cmd "$RIGHT" ;;
+        x) send_cmd "$ROTATE_CW" ;;
+        z) send_cmd "$ROTATE_CCW" ;;
+        c) send_cmd "$HOLD" ;;
+        2) send_cmd "$SOFT_DROP" ;;
+        8|" ") send_cmd "$HARD_DROP" ;;
+        q) send_cmd "$QUIT"; break ;;
+      esac
+    done
+  } 2>&3
+}
+
 # Even if the game is finished, dd is still waiting for input, so we need to find it and kill it.
 killdd() {
   local parent_pid="$1" pid="" ppid="" comm=""
@@ -2493,7 +2558,13 @@ game() {
   (
     ticker "$$"         & # runs as separate process
     lockdown_timer "$$" &
-    reader "$$"
+    
+    # Check if INPUT_FILE was set in main
+    if [ -n "${INPUT_FILE:-}" ]; then
+        file_reader "$$" "$INPUT_FILE"
+    else
+        reader "$$"
+    fi
   ) | (
     controller
   )
@@ -2520,6 +2591,7 @@ main() {
   rotate_piece_func=rotate_piece_super
   starting_level=1
   debug=false
+  INPUT_FILE=""
 
   while [ $# -gt 0 ]; do
     case $1 in
@@ -2603,7 +2675,16 @@ main() {
         ;;
       --help|-h)    echo "$USAGE";   exit ;;
       --version|-V) echo "$VERSION"; exit ;;
-      *)            die_usage "unrecognized option '$1'" ;;
+        *)
+          # If it's not a flag, check if it's a valid file and we haven't found one yet
+          if [ -z "$INPUT_FILE" ] && [ -f "$1" ]; then
+              INPUT_FILE="$1"
+          else
+              # If it's not a file, or we already have a file, or it looks like a flag
+              die_usage "unrecognized option or file not found: '$1'"
+          fi
+          shift
+          ;;
     esac
   done
 

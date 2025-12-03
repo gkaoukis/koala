@@ -3,10 +3,12 @@
 sudo apt-get update -y
 
 sudo apt-get install -y \
+    coreutils \
     build-essential \
     git \
     curl \
     wget \
+    bzip2 \
     gpg \
     tar \
     coreutils \
@@ -18,4 +20,8 @@ sudo apt-get install -y \
     build-essential \
     python3 \
     python3-pip \
-    python3-venv
+    python3-venv \
+    ncurses-bin \
+    ca-certificates \
+    zsh # \
+   # gettext man-db procps psmisc nano tree ncal x11-apps wget
