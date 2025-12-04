@@ -64,6 +64,8 @@
 set -u # non initialized variable is an error
 set -f # disable pathname expansion
 
+TOP=$(git rev-parse --show-toplevel)
+SHTRIS_OUTPUT_FILE=${SHTRIS_OUTPUT_FILE:-"$TOP/interactive/shtris_output"}
 # game versioin
 # should follow "Semantic Versioning 2.0.0" <https://semver.org/>
 # so that users have a clear indicator of when an upgrade will introduce breaking changes.
@@ -2195,6 +2197,7 @@ quit() {
   running=false # let's stop controller ...
   xyprint $((CENTER_X - 5)) $CENTER_Y 'Game Over!'
   flush_screen
+  echo 0 >> $OUTPUT_FILE
 }
 
 init() {
