@@ -113,33 +113,27 @@ def node_heatmap(df, outdir=None):
 
     heatmap_data = heatmap_data.fillna(0)
     limit = 5
+    
+    # Compute ALL column from original (uncapped) data
+    all_totals = heatmap_data.sum(axis=1)
+    
+    annot_data = heatmap_data.applymap(lambda x: '*' if x > limit else '')
     heatmap_data = heatmap_data.applymap(lambda x: min(x, limit))
-    annot_data = heatmap_data.applymap(lambda x: \
-        #'>{}'.format(limit) \
-        '*' \
-            if x == limit else '')
     
     # order the y-axis of the heatmap according to the node_order, any nodes not in that list can appear after in any order
     heatmap_data = heatmap_data.loc[[x for x in heatmap_data.index if x not in node_order] + list(reversed(node_order))]
     annot_data = annot_data.loc[[x for x in annot_data.index if x not in node_order] + list(reversed(node_order))]
-
-    # Sort the columns by the sum of the values in each column
-    # heatmap_data = heatmap_data[heatmap_data.sum().sort_values(ascending=True).index]
-    # annot_data = annot_data[heatmap_data.columns]
+    all_totals = all_totals.loc[heatmap_data.index]
 
     # Sort the columns alphabetically
-    cols_sorted = sorted(heatmap_data.columns)
-    heatmap_data = heatmap_data[cols_sorted]
-    annot_data = annot_data[cols_sorted]
-    # Add an overall total column, this should be outside the normalizations
-    heatmap_data['ALL'] = heatmap_data.sum(axis=1)
-    annot_data['ALL'] = annot_data.sum(axis=1)
+    heatmap_data = heatmap_data[sorted(heatmap_data.columns)]
+    annot_data = annot_data[heatmap_data.columns]
+
+    # Add ALL column using original uncapped totals
+    heatmap_data['ALL'] = all_totals
+    annot_data['ALL'] = all_totals.apply(lambda x: '*' if x > limit else '')
 
     heatmap_data = heatmap_data.applymap(lambda x: min(x, limit))
-    annot_data = heatmap_data.applymap(lambda x: \
-        #'>{}'.format(limit) \
-        '*' \
-            if x == limit else '')
 
     # Set the color limit to be 5
     
@@ -184,8 +178,8 @@ def merge_node_counts(series):
 def read_data(merge_commands=True):
     df = pd.read_csv(data_path, header=None)
     df.columns = ['script', 'nodes']
-    # Unpack node counts
-    df['nodes'] = df['nodes'].apply(lambda x: dict([tuple(i.split(':')) for i in x.split(';')]) if isinstance(x, str) else {})
+    # Unpack node counts (use rsplit(':', 1) to split from the right, handling colons in command names like command(:))
+    df['nodes'] = df['nodes'].apply(lambda x: dict([tuple(i.rsplit(':', 1)) for i in x.split(';')]) if isinstance(x, str) else {})
     # Transform nodes entries for 'command(eval)' and 'command(alias)' into 'eval' and 'alias'
     df['nodes'] = df['nodes'].apply(lambda x: {extract_special_command(k): int(v) for k, v in x.items()})
     if merge_commands:

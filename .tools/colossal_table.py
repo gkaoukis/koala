@@ -25,16 +25,20 @@ def read_sys_results():
 
 benchmark_category_style = {
     'analytics': ('System admin.', 'Data analysis', '\\cite{dgsh:ieee:2017,posh:atc:2020,drake2014command}'),
-    'bio': ('Data analysis', 'Biology', '\\cite{Cappellini2019,puritz2019bio594,ibrahim2021tera}'),
+    'bio': ('Data analysis', 'Bio Informatics', '\\cite{Cappellini2019,puritz2019bio594,ibrahim2021tera}'),
     'ci-cd': ('Continuous Integration', 'Build scripts', '\\cite{riker2022,makeself}'),
     'covid': ('Data analysis', 'Data extraction', '\\cite{covid-mts-source}'),
+    'etcetera': ('Misc. Idk', 'Misc. Idk', '\\cite{mcilroy2014coroutine,hs:hotos:2023}'),
     'file-mod': ('Automation Now', 'Misc. Idk', '\\cite{cito2020empirical,dgsh:ieee:2017,posh:atc:2020}'),
     'inference': ('Machine learning', 'Data analysis', '\\cite{lamprou2025foundation,tunney2023bash}'),
+    'interact': ('System admin.', 'Misc. Idk', '\\cite{shnake,ohmyzsh}'),
     'ml': ('Machine learning', 'Data analysis', '\\cite{scikit-learn}'),
+    'net': ('Net Work', 'System admin.', '\\cite{Nemeth2017-uf}'),
     'nlp': ('Text processing', 'Machine learning', '\\cite{unix-for-poets-church}'),
     'oneliners': ('Automation Now', 'Text processing', ''),
     'pkg': ('Continuous Integration', 'Automation Now', '\\cite{pacaur,vasilakis2021preventing}'),
     'repl': ('System admin.', 'Misc. Idk', '\\cite{posh:atc:2020,vpsaudit}'),
+    'rand': ('Misc. Idk', 'Misc. Idk', '\\cite{cito2020empirical}'),
     'unixfun': ('Misc. Idk', 'Text processing', '\\cite{bhandari2020solutions}'),
     'weather': ('Data analysis', 'Data extraction', '\\cite{hadoop-guide-2009}'),
     'web-search': ('Misc. Idk', 'Text processing', '\\cite{csci1380}'),
@@ -74,6 +78,10 @@ benchmark_input_description = {
     'unixfun': 'challenge inputs',
     'weather': 'temperature data',
     'web-search': 'root webpages',
+    'rand': '\\xxx',
+    'etcetera': '\\xxx',
+    'interact': '\\xxx',
+    'net': '\\xxx',
 }
 
 def roundk(n):
@@ -90,6 +98,7 @@ benchmark_input_override = {
     'ci-cd': { 'small': None, 'full': None },
     'pkg': { 'small': f'{(100 + 10)} pkgs', 'full': f'{roundk(1768 + 195)}k pkgs' },
     'repl': { 'small': None, 'full': None },
+    'etcetera': { 'small': None, 'full': None },
     'nlp': { 'small': f'{roundk(3000)}k bks', 'full': f'{roundk(115916)}k bks' },
 }
 
@@ -98,11 +107,14 @@ scripts_to_include = [
     'analytics/scripts/nginx.sh',
     'bio/scripts/bio.sh',
     'bio/scripts/data.sh',
-    'ci-cd/makeself/test/lsmtest/lsmtest.sh'
+    'ci-cd/makeself/test/lsmtest/lsmtest.sh',
     'ci-cd/riker/redis/build.sh',
     'covid/scripts/1.sh',
+    'etcetera/scripts/sieve.sh',
+    'etcetera/scripts/try.sh',
     'file-mod/scripts/encrypt_files.sh',
     'file-mod/scripts/img_convert.sh',
+    'net/scripts/ping.sh',
     'nlp/scripts/bigrams.sh',
     'oneliners/scripts/spell.sh',
     'oneliners/scripts/top-n.sh',
@@ -300,7 +312,6 @@ def main():
     \\begin{tabular}{@{}llrrrrrrrrrrrrl@{}}
     \\toprule
     \\multirow{2}{*}{Benchmark/Script} & \\multicolumn{3}{c}{Surface} & \\multicolumn{2}{c}{Inputs} & \\multicolumn{2}{c}{Syntax} & \\multicolumn{4}{c}{Dynamic} & \\multicolumn{2}{c}{System} & \\multirow{2}{*}{Source} \\\\
-        \\cline{2-4} \\cline{5-6} \\cline{7-8} \\cline{9-12} \\cline{13-14}
                                       & \multicolumn{1}{c}{\\Dom}  & \\#.sh     & LoC     & Small & Full & \\#Cons & \\#Cmd & $t_{S}$  & $t_{C}$  & Mem   & I/O & \\#SC & \\#FD &   \\\\
         \\midrule
     """)
@@ -316,7 +327,7 @@ def main():
                 # all columns except leave blank benchmark, category, number of scripts, input description
                 print(f"\\hspace{{0.5em}} \\ttt{{{script_name(row_script['script'].split('/')[-1])}}} & & & {row_script['loc']} & & & {row_script['constructs']} & {row_script['unique_cmds']} & {format_time(row_script['time_in_shell'])} & {format_time(row_script['time_in_commands'])} & {prettify_bytes_number(row_script['max_unique_set_size'])} & {prettify_bytes_number(row_script['io_chars'])} & & & {script_citation(row_script['script'])} \\\\")
                 numscripts_shown += 1
-        if numscripts_shown < numscripts and numscripts > 1:
+        if numscripts_shown > 0 and numscripts_shown < numscripts:
             print(f"\\hspace{{0.5em}} \\ldots & & & & & & & & & & & & & & {script_citation(row['benchmark'] + '...')} \\\\")
 
     print("\\midrule")
@@ -332,7 +343,7 @@ def main():
                 return round_whole(f"{value:.1f}") if isinstance(value, float) else f"{int(value)}"
             return value  # For non-numeric values
 
-        print(f"{{\\textbf{{\\centering {row['benchmark']}}}}} & & {format_value(row['number_of_scripts'])} & {format_value(row['loc'])} & {prettify_bytes_number(row['input_size_small'])} & {prettify_bytes_number(row['input_size_full'])} & {format_value(row['constructs'])} & {format_value(row['unique_cmds'])} & {format_value(row['time_in_shell'])} & {format_value(row['time_in_commands'])} & {prettify_bytes_number(row['max_unique_set_size'])} & {prettify_bytes_number(row['io_chars'])} & {prettify_big_count(row['sys_calls'])} & {format_value(row['file_descriptors'])} & \\\\")
+        print(f"{{\\textbf{{\\centering {row['benchmark']}}}}} & & {format_value(row['number_of_scripts'])} & {format_value(row['loc'])} & {prettify_bytes_number(row['input_size_small'])} & {prettify_bytes_number(row['input_size_full'])} & {format_value(row['constructs'])} & {format_value(row['unique_cmds'])} & {format_time(row['time_in_shell'])} & {format_time(row['time_in_commands'])} & {prettify_bytes_number(row['max_unique_set_size'])} & {prettify_bytes_number(row['io_chars'])} & {prettify_big_count(row['sys_calls'])} & {format_value(row['file_descriptors'])} & \\\\")
 
     print("""
     \\bottomrule
