@@ -117,8 +117,8 @@ def node_heatmap(df, outdir=None):
     # Compute ALL column from original (uncapped) data
     all_totals = heatmap_data.sum(axis=1)
     
-    annot_data = heatmap_data.applymap(lambda x: '*' if x > limit else '')
-    heatmap_data = heatmap_data.applymap(lambda x: min(x, limit))
+    annot_data = heatmap_data.map(lambda x: '*' if x > limit else '')
+    heatmap_data = heatmap_data.map(lambda x: min(x, limit))
     
     # order the y-axis of the heatmap according to the node_order, any nodes not in that list can appear after in any order
     heatmap_data = heatmap_data.loc[[x for x in heatmap_data.index if x not in node_order] + list(reversed(node_order))]
@@ -133,7 +133,7 @@ def node_heatmap(df, outdir=None):
     heatmap_data['ALL'] = all_totals
     annot_data['ALL'] = all_totals.apply(lambda x: '*' if x > limit else '')
 
-    heatmap_data = heatmap_data.applymap(lambda x: min(x, limit))
+    heatmap_data = heatmap_data.map(lambda x: min(x, limit))
 
     # Set the color limit to be 5
     
