@@ -12,10 +12,19 @@ from dataclasses import dataclass
 from project_root import get_project_root
 
 def correct_base(path):
-    return Path(path).is_relative_to('/koala')
+    p = Path(path)
+    return p.is_relative_to("/koala") or p.is_relative_to("/benchmarks")
+
 
 def rebase(path):
-    return Path(path).relative_to('/koala')
+    p = Path(path)
+
+    if p.is_relative_to("/koala"):
+        return p.relative_to("/koala")
+    if p.is_relative_to("/benchmarks"):
+        return p.relative_to("/benchmarks")
+
+    raise ValueError(f"{p} is not under /koala or /benchmarks")
 
 def is_shell(pid, processes):
     a = next(iter(processes[pid].values()))
