@@ -1,15 +1,29 @@
-#!/bin/bash
+#!/bin/sh
 
-sudo apt-get update
+TOP=$(git rev-parse --show-toplevel)
+OS=$("$TOP/.tools/detect-os.sh")
 
-sudo apt-get install -y \
-  sudo \
-  coreutils \
-  wget \
-  unzip \
-  gzip \
-  gawk \
-  sed \
-  git \
-  openssl \
-  curl wget unzip gzip coreutils ffmpeg unrtf imagemagick zstd git xz-utils
+case "$OS" in
+    debian)
+        sudo apt-get update
+
+        sudo apt-get install -y \
+          sudo \
+          coreutils \
+          wget \
+          unzip \
+          gzip \
+          gawk \
+          sed \
+          git \
+          openssl \
+          curl wget unzip gzip coreutils ffmpeg unrtf imagemagick zstd git xz-utils
+        ;;
+    macos)
+        # coreutils/gawk/sed are provided by the ticket-03 GNU-utils PATH shim
+        brew install wget unzip gzip git openssl curl ffmpeg unrtf imagemagick zstd xz
+        ;;
+    fedora)
+        :
+        ;;
+esac

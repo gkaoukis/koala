@@ -1,4 +1,7 @@
-#!/bin/bash
+#!/bin/sh
+
+TOP=$(git rev-parse --show-toplevel)
+OS=$("$TOP/.tools/detect-os.sh")
 
 size=full
 for arg in "$@"; do
@@ -8,62 +11,132 @@ for arg in "$@"; do
     esac
 done
 
-sudo apt-get update
-pkgs="build-essential libncurses5-dev libncursesw5-dev libbz2-dev liblzma-dev libcurl4-openssl-dev libssl-dev wget zlib1g-dev minimap2 samtools" 
+case "$OS" in
+    debian)
+        sudo apt-get update
+        pkgs="build-essential libncurses5-dev libncursesw5-dev libbz2-dev liblzma-dev libcurl4-openssl-dev libssl-dev wget zlib1g-dev minimap2 samtools"
 
-for pkg in $pkgs; do
-    if ! dpkg -s $pkg; then
-        sudo apt-get install -y --no-install-recommends $pkg
-    fi
-done
+        for pkg in $pkgs; do
+            if ! dpkg -s "$pkg" >/dev/null 2>&1; then
+                sudo apt-get install -y --no-install-recommends "$pkg"
+            fi
+        done
+        ;;
+    macos)
+        # ncurses/bzip2/xz/zlib headers ship with the Xcode SDK; libcurl ships with
+        # the OS. minimap2/samtools have direct brew formulae, so the source-build
+        # fallback further down (section 3) no-ops once these are on PATH.
+        if ! xcode-select -p >/dev/null 2>&1; then
+            echo "Xcode Command Line Tools required: run 'xcode-select --install' first." >&2
+            exit 1
+        fi
+        brew install wget minimap2 samtools
+        ;;
+    fedora)
+        :
+        ;;
+esac
 
-if [[ "$size" == "min" ]]; then
+if [ "$size" = "min" ]; then
     exit 0
 fi
 
 # For teraseq
-TOP=$(git rev-parse --show-toplevel)
 benchmark_dir="${TOP}/bio"
 
 # install.sh: Installs system-wide dependencies for the TERA-Seq pipeline
 
 # 1. Install OS packages
-sudo apt-get install -y --no-install-recommends \
-    build-essential \
-    git \
-    wget \
-    curl \
-    python3 \
-    python3-dev \
-    python3.11-dev \
-    python3-all-dev \
-    python3-pip \
-    perl \
-    cpanminus \
-    libdbi-perl \
-    zlib1g-dev \
-    libbz2-dev \
-    liblzma-dev \
-    libcurl4-openssl-dev \
-    openjdk-17-jdk \
-    default-jre-headless \
-    r-base \
-    r-base-dev \
-    gradle \
-    cmake \
-    make \
-    gcc \
-    g++ \
-    gffread \
-    gmap \
-    parallel \
- && rm -rf /var/lib/apt/lists/*
+case "$OS" in
+    debian)
+        sudo apt-get install -y --no-install-recommends \
+            build-essential \
+            git \
+            wget \
+            curl \
+            python3 \
+            python3-dev \
+            python3.11-dev \
+            python3-all-dev \
+            python3-pip \
+            perl \
+            cpanminus \
+            libdbi-perl \
+            zlib1g-dev \
+            libbz2-dev \
+            liblzma-dev \
+            libcurl4-openssl-dev \
+            openjdk-17-jdk \
+            default-jre-headless \
+            r-base \
+            r-base-dev \
+            gradle \
+            cmake \
+            make \
+            gcc \
+            g++ \
+            gffread \
+            gmap \
+            parallel \
+         && rm -rf /var/lib/apt/lists/*
 
-sudo wget -qO /usr/local/bin/liftOver http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/liftOver
-sudo chmod +x /usr/local/bin/liftOver
+        sudo wget -qO /usr/local/bin/liftOver http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/liftOver
+        sudo chmod +x /usr/local/bin/liftOver
 
-export CFLAGS="-I/usr/include/python3.11 -I/usr/include/python3.11/cpython"
-export CPPFLAGS="$CFLAGS"
+        export CFLAGS="-I/usr/include/python3.11 -I/usr/include/python3.11/cpython"
+        export CPPFLAGS="$CFLAGS"
+        ;;
+    macos)
+        # python3-dev/python3.11-dev/python3-all-dev: brew's python3 already ships
+        # headers, no separate -dev package needed.
+        # default-jre-headless: covered by openjdk@17 below.
+        # libdbi-perl: Perl's DBI module isn't a brew formula; installed via cpanm
+        # in section 6 below, alongside this pipeline's other Perl modules.
+        # seqkit/rna-star: added here (brew formulae exist) so the Linux-binary
+        # download fallbacks in sections 3 and 4 below no-op via their existing
+        # `command -v` checks, rather than duplicating that logic per OS.
+        brew install git wget curl python3 perl cpanminus openjdk@17 r gradle cmake \
+            gffread parallel seqkit rna-star
+
+        # liftOver: UCSC also publishes macOS binaries, at a different path per
+        # architecture than the Linux one the debian branch uses above.
+        if [ "$(uname -m)" = "arm64" ]; then
+            liftover_url="http://hgdownload.cse.ucsc.edu/admin/exe/macOSX.arm64/liftOver"
+        else
+            liftover_url="http://hgdownload.cse.ucsc.edu/admin/exe/macOSX.x86_64/liftOver"
+        fi
+        sudo wget -qO /usr/local/bin/liftOver "$liftover_url"
+        sudo chmod +x /usr/local/bin/liftOver
+
+        # gmap/gmap_build (bio/scripts/data.sh): no brew formula and no
+        # bioinformatics tap available. Built from source, same shape as the
+        # nanopolish fallback in section 5 below. UNVERIFIED on macOS in this
+        # session (no way to actually compile/run it here) — confirm this build
+        # succeeds before relying on it; research-pub.gene.com/gmap was
+        # unreachable when checked, so the URL/version below is best-effort from
+        # search results, not a fetched, verified page.
+        if ! command -v gmap >/dev/null 2>&1; then
+            gmap_tmp=$(mktemp -d)
+            curl -L http://research-pub.gene.com/gmap/src/gmap-gsnap-2025-07-31.v2.tar.gz \
+                -o "$gmap_tmp/gmap.tar.gz" \
+            && tar -xzf "$gmap_tmp/gmap.tar.gz" -C "$gmap_tmp" \
+            && gmap_srcdir=$(find "$gmap_tmp" -maxdepth 1 -type d -name 'gmap-gsnap-*') \
+            && cd "$gmap_srcdir" \
+            && ./configure \
+            && make -j"$(sysctl -n hw.ncpu)" \
+            && sudo make install \
+            && cd - >/dev/null || exit 1
+            rm -rf "$gmap_tmp"
+        fi
+
+        # Prebuilt macOS wheels exist for this pipeline's Python packages, so the
+        # explicit Python-header CFLAGS the debian branch needs typically aren't
+        # required here; omitted.
+        ;;
+    fedora)
+        :
+        ;;
+esac
 
 # 2. Install Python packages
 pip3 install --no-cache-dir --break-system-packages \
@@ -85,14 +158,14 @@ command -v samtools >/dev/null 2>&1 || { \
     && cd /tmp/samtools \
     && autoheader && autoconf -Wno-syntax -Wno-error \
     && ./configure --prefix=/usr/local \
-    && make -j$(nproc) && make install \
+    && make -j"$(nproc)" && make install \
     && cd / && rm -rf /tmp/samtools; }
 command -v minimap2 >/dev/null 2>&1 || { \
     git clone --depth 1 https://github.com/lh3/minimap2.git /tmp/minimap2 \
     && cd /tmp/minimap2 \
-    && make -j$(nproc) \
+    && make -j"$(nproc)" \
     && cp minimap2 /usr/local/bin/ \
-    && cp *.py /usr/local/bin/ \
+    && cp ./*.py /usr/local/bin/ \
     && cd / && rm -rf /tmp/minimap2; }
 
 ## seqkit
@@ -137,7 +210,7 @@ if [ ! -f /usr/local/bin/nanopolish ]; then
     git clone --recursive https://github.com/jts/nanopolish.git /tmp/nanopolish \
     && cd /tmp/nanopolish \
     && git checkout 480fc85 \
-    && make -j$(nproc) \
+    && make -j"$(nproc)" \
     && cp nanopolish /usr/local/bin/ \
     && cd / && rm -rf /tmp/nanopolish;
 fi
@@ -174,12 +247,12 @@ rm -rf "$tmpdir"
 
 # 7. Install R packages
 Rscript -e 'install.packages(c(
-    "DBI",        
-    "RSQLite",    
-    "dplyr",      
-    "stringr",    
-    "optparse",   
-    "longitudinal", 
+    "DBI",
+    "RSQLite",
+    "dplyr",
+    "stringr",
+    "optparse",
+    "longitudinal",
     "fdrtool",
     "ggplot2",
     "reshape2"
@@ -188,9 +261,10 @@ Rscript -e 'install.packages("https://cran.r-project.org/src/contrib/Archive/Gen
 
 # 8. Install sam_to_sqlite and annotate-sqlite-with-fastq
 # Assuming these scripts are in tools/utils
-cd "${benchmark_dir}"
+cd "${benchmark_dir}" || exit 1
 chmod +x utils/*
 
 # Cleanup
-apt-get clean && rm -rf /var/lib/apt/lists/ /tmp/*
-
+if [ "$OS" = "debian" ]; then
+    apt-get clean && rm -rf /var/lib/apt/lists/ /tmp/*
+fi

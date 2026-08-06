@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # For sysctl
 export PATH="$PATH:/sbin:/usr/sbin"

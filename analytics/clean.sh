@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 for arg in "$@"; do
     case "$arg" in

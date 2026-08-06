@@ -1,11 +1,27 @@
-#!/bin/bash
+#!/bin/sh
 
-pkgs="wget bsdmainutils file dos2unix grep findutils mawk"
+TOP=$(git rev-parse --show-toplevel)
+OS=$("$TOP/.tools/detect-os.sh")
 
-sudo apt-get update
+case "$OS" in
+    debian)
+        pkgs="wget bsdmainutils file dos2unix grep findutils mawk"
 
-for pkg in $pkgs; do
-    if ! dpkg -s "$pkg" >/dev/null 2>&1; then
-        sudo apt-get install -y --no-install-recommends "$pkg"
-    fi
-done
+        sudo apt-get update
+
+        for pkg in $pkgs; do
+            if ! dpkg -s "$pkg" >/dev/null 2>&1; then
+                sudo apt-get install -y --no-install-recommends "$pkg"
+            fi
+        done
+        ;;
+    macos)
+        # grep/findutils are provided by the ticket-03 GNU-utils PATH shim.
+        # bsdmainutils (hexdump/look/colcrt/...) is Debian's packaging of BSD
+        # tools macOS already ships natively.
+        brew install wget file dos2unix mawk
+        ;;
+    fedora)
+        :
+        ;;
+esac

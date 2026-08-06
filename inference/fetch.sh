@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 TOP=$(git rev-parse --show-toplevel)
 
@@ -31,7 +31,7 @@ if [ ! -d "$models_dir" ]; then
     rm -r "${input_dir}/tmp_models" "${input_dir}/models.zip"
 fi
 
-if [[ "$size" == "min" ]]; then
+if [ "$size" = "min" ]; then
     if [ -d "$min_dir" ]; then
         echo "Data already downloaded and extracted."
     else
@@ -39,7 +39,7 @@ if [[ "$size" == "min" ]]; then
     fi
 fi
 
-if [[ "$size" == "small" ]]; then
+if [ "$size" = "small" ]; then
     if [ -d "$small_dir" ]; then
         echo "Data already downloaded and extracted."
     else
@@ -51,7 +51,7 @@ if [[ "$size" == "small" ]]; then
     fi
 fi
 
-if [[ "$size" == "full" ]]; then
+if [ "$size" = "full" ]; then
     if [ -d "$full_dir" ]; then
         echo "Data already downloaded and extracted."
     else
@@ -65,9 +65,9 @@ fi
 
 URL="https://atlas-group.cs.brown.edu/data"
 
-if [[ "$size" == "small" ]]; then
+if [ "$size" = "small" ]; then
     # if inputs exist
-    if [[ -d "$input_dir/jpg.small" ]]; then
+    if [ -d "$input_dir/jpg.small" ]; then
         echo "Image data already downloaded and extracted."
     else
         data_url="${URL}"/small/jpg.zip
@@ -83,7 +83,7 @@ if [[ "$size" == "small" ]]; then
         }
         rm "$zip_dst"
     fi
-    if [[ -d "$input_dir/songs.small" ]]; then
+    if [ -d "$input_dir/songs.small" ]; then
         echo "Song already downloaded and extracted."
         exit 0
     fi
@@ -100,19 +100,19 @@ if [[ "$size" == "small" ]]; then
     mv "$input_dir/playlist_small" "$input_dir/songs.small"
     exit 0
 
-elif [[ "$size" == "min" ]]; then
-    if [[ -d "$input_dir/jpg.min" ]]; then
+elif [ "$size" = "min" ]; then
+    if [ -d "$input_dir/jpg.min" ]; then
         echo "Image data already downloaded and extracted."
     else
         cp -r "${eval_dir}"/min_inputs/jpg.min "$input_dir"
     fi
-    if [[ -d "$input_dir/songs.min" ]]; then
+    if [ -d "$input_dir/songs.min" ]; then
         echo "Song data already downloaded and extracted."
         exit 0
     fi
     cp -r "${eval_dir}"/min_inputs/songs.min "$input_dir"
 else
-    if [[ -d "$input_dir/jpg" ]]; then
+    if [ -d "$input_dir/jpg" ]; then
         echo "Image data already downloaded and extracted."
     else
         echo "Downloading full dataset."
@@ -123,7 +123,7 @@ else
         unzip $zip_dst -d $out_dir
         rm "$zip_dst"
     fi
-    if [[ -d "$input_dir/songs.full" ]]; then
+    if [ -d "$input_dir/songs.full" ]; then
         echo "Song data already downloaded and extracted."
         exit 0
     fi

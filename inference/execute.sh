@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 KOALA_SHELL=${KOALA_SHELL:-bash}
 TOP=$(git rev-parse --show-toplevel)

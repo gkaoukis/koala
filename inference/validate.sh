@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 eval_dir=$(realpath "$(dirname "$0")")
 

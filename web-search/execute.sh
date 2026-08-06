@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 cd "$(dirname "$0")" || exit 1
 TOP=$(git rev-parse --show-toplevel)

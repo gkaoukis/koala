@@ -1,39 +1,61 @@
-#!/bin/bash
-
-sudo apt-get update 
-
-sudo apt-get install -y --no-install-recommends \
-  tcpdump curl wget coreutils diffutils gzip bcftools gawk unzip git \
-  jq \
-  coreutils \
-  gawk \
-  cmake \
-  build-essential \
-  libjansson-dev \
-  libpcap-dev \
-  tar \
-  git \
-  python3 \
-  q-text-as-data \
-  grep \
-  sed
-
-# Set GO_VERSION *before* using it
-GO_VERSION=1.24.2
-echo "Installing Go $GO_VERSION"
+#!/bin/sh
 
 TOP=$(git rev-parse --show-toplevel)
+OS=$("$TOP/.tools/detect-os.sh")
 eval_dir="$TOP/analytics"
-go_install_dir="${eval_dir}/go_install"
 
-mkdir -p "$go_install_dir"
-curl -LO "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz"
-tar -C "$go_install_dir" -xzf "go${GO_VERSION}.linux-amd64.tar.gz"
-rm -f "go${GO_VERSION}.linux-amd64.tar.gz"
+case "$OS" in
+    debian)
+        sudo apt-get update
 
-export GOROOT="$go_install_dir/go"
+        sudo apt-get install -y --no-install-recommends \
+          tcpdump curl wget coreutils diffutils gzip bcftools gawk unzip git \
+          jq \
+          coreutils \
+          gawk \
+          cmake \
+          build-essential \
+          libjansson-dev \
+          libpcap-dev \
+          tar \
+          git \
+          python3 \
+          q-text-as-data \
+          grep \
+          sed
+
+        # Set GO_VERSION *before* using it
+        GO_VERSION=1.24.2
+        echo "Installing Go $GO_VERSION"
+
+        go_install_dir="${eval_dir}/go_install"
+
+        mkdir -p "$go_install_dir"
+        curl -LO "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz"
+        tar -C "$go_install_dir" -xzf "go${GO_VERSION}.linux-amd64.tar.gz"
+        rm -f "go${GO_VERSION}.linux-amd64.tar.gz"
+
+        export GOROOT="$go_install_dir/go"
+        export PATH="$GOROOT/bin:$PATH"
+        ;;
+    macos)
+        # coreutils/gawk/grep/sed are provided by the ticket-03 GNU-utils PATH shim.
+        # q-text-as-data has no brew formula; omitted — every call to `q` in
+        # analytics/scripts/ray-tracing.sh is already commented out, so nothing
+        # live depends on it today.
+        if ! xcode-select -p >/dev/null 2>&1; then
+            echo "Xcode Command Line Tools required: run 'xcode-select --install' first." >&2
+            exit 1
+        fi
+        brew install tcpdump curl wget diffutils bcftools unzip git jq cmake jansson libpcap gnu-tar python3 go
+        ;;
+    fedora)
+        :
+        ;;
+esac
+
 export GOPATH="$HOME/go"
-export PATH="$GOROOT/bin:$GOPATH/bin:$PATH"
+export PATH="$GOPATH/bin:$PATH"
 
 # Confirm Go is now working
 go version || { echo "Go installation failed"; exit 1; }

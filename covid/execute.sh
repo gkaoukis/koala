@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 TOP=$(git rev-parse --show-toplevel)
 eval_dir="${TOP}/covid"
