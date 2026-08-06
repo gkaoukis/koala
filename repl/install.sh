@@ -2,6 +2,9 @@
 
 TOP=$(git rev-parse --show-toplevel)
 OS=$("$TOP/.tools/detect-os.sh")
+if [ "$OS" = "macos" ]; then
+    export PATH="$TOP/.tools/gnubin:$PATH"
+fi
 
 case "$OS" in
     debian)
@@ -16,6 +19,7 @@ case "$OS" in
         done
         ;;
     macos)
+        "$TOP/.tools/setup-gnubin.sh"
         # grep/gawk are provided by the ticket-03 GNU-utils PATH shim. iptables/ufw/
         # procps/net-tools/fail2ban/iproute2 exist here solely for
         # scripts/vps-audit.sh + vps-audit-negate.sh, which are confirmed Linux-only

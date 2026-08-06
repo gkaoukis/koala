@@ -2,6 +2,9 @@
 
 TOP=$(git rev-parse --show-toplevel)
 OS=$("$TOP/.tools/detect-os.sh")
+if [ "$OS" = "macos" ]; then
+    export PATH="$TOP/.tools/gnubin:$PATH"
+fi
 eval_dir="$TOP/analytics"
 
 case "$OS" in
@@ -39,6 +42,7 @@ case "$OS" in
         export PATH="$GOROOT/bin:$PATH"
         ;;
     macos)
+        "$TOP/.tools/setup-gnubin.sh"
         # coreutils/gawk/grep/sed are provided by the ticket-03 GNU-utils PATH shim.
         # q-text-as-data has no brew formula; omitted — every call to `q` in
         # analytics/scripts/ray-tracing.sh is already commented out, so nothing

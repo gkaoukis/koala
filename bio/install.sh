@@ -2,6 +2,9 @@
 
 TOP=$(git rev-parse --show-toplevel)
 OS=$("$TOP/.tools/detect-os.sh")
+if [ "$OS" = "macos" ]; then
+    export PATH="$TOP/.tools/gnubin:$PATH"
+fi
 
 size=full
 for arg in "$@"; do
@@ -23,6 +26,7 @@ case "$OS" in
         done
         ;;
     macos)
+        "$TOP/.tools/setup-gnubin.sh"
         # ncurses/bzip2/xz/zlib headers ship with the Xcode SDK; libcurl ships with
         # the OS. minimap2/samtools have direct brew formulae, so the source-build
         # fallback further down (section 3) no-ops once these are on PATH.

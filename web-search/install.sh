@@ -2,6 +2,9 @@
 
 TOP=$(git rev-parse --show-toplevel)
 OS=$("$TOP/.tools/detect-os.sh")
+if [ "$OS" = "macos" ]; then
+    export PATH="$TOP/.tools/gnubin:$PATH"
+fi
 
 case "$OS" in
     debian)
@@ -42,6 +45,7 @@ case "$OS" in
         fi
         ;;
     macos)
+        "$TOP/.tools/setup-gnubin.sh"
         # brew's node formula bundles npm; pandoc and p7zip are direct formulae,
         # no arch-specific download dance needed the way the .deb release requires.
         brew install p7zip curl wget unzip node pandoc

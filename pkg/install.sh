@@ -2,6 +2,9 @@
 
 TOP=$(git rev-parse --show-toplevel)
 OS=$("$TOP/.tools/detect-os.sh")
+if [ "$OS" = "macos" ]; then
+    export PATH="$TOP/.tools/gnubin:$PATH"
+fi
 
 case "$OS" in
     debian)
@@ -59,6 +62,7 @@ case "$OS" in
         sudo apt-get install -y --no-install-recommends  default-jdk
         ;;
     macos)
+        "$TOP/.tools/setup-gnubin.sh"
         # Everything above beyond nodejs/npm (Qt, X11 dev libs, ncurses, SELinux,
         # RPC libs, makedeb itself, ...) exists solely to let makedeb build
         # arbitrary PKGBUILDs for scripts/pacaur.sh. makedeb has no macOS support

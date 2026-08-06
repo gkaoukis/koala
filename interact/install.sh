@@ -2,6 +2,9 @@
 
 TOP=$(git rev-parse --show-toplevel)
 OS=$("$TOP/.tools/detect-os.sh")
+if [ "$OS" = "macos" ]; then
+    export PATH="$TOP/.tools/gnubin:$PATH"
+fi
 
 case "$OS" in
     debian)
@@ -31,6 +34,7 @@ case "$OS" in
             zsh
         ;;
     macos)
+        "$TOP/.tools/setup-gnubin.sh"
         # coreutils/sed/gawk are provided by the ticket-03 GNU-utils PATH shim.
         # ncurses-bin (tput/tic/infocmp) and zsh ship with the base OS already.
         if ! xcode-select -p >/dev/null 2>&1; then

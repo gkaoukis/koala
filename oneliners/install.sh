@@ -2,6 +2,9 @@
 
 TOP=$(git rev-parse --show-toplevel)
 OS=$("$TOP/.tools/detect-os.sh")
+if [ "$OS" = "macos" ]; then
+    export PATH="$TOP/.tools/gnubin:$PATH"
+fi
 
 case "$OS" in
     debian)
@@ -16,6 +19,7 @@ case "$OS" in
         done
         ;;
     macos)
+        "$TOP/.tools/setup-gnubin.sh"
         # grep/findutils are provided by the ticket-03 GNU-utils PATH shim.
         # bsdmainutils (hexdump/look/colcrt/...) is Debian's packaging of BSD
         # tools macOS already ships natively.

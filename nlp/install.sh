@@ -1,7 +1,10 @@
 #!/bin/sh
 
 TOP=$(git rev-parse --show-toplevel)
-# shellcheck disable=SC2034
 OS=$("$TOP/.tools/detect-os.sh")
+if [ "$OS" = "macos" ]; then
+    "$TOP/.tools/setup-gnubin.sh"
+    export PATH="$TOP/.tools/gnubin:$PATH"
+fi
 
-# This benchmark does not have any dependencies.
+# This benchmark does not have any other dependencies.

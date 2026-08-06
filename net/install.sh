@@ -2,6 +2,9 @@
 
 TOP=$(git rev-parse --show-toplevel)
 OS=$("$TOP/.tools/detect-os.sh")
+if [ "$OS" = "macos" ]; then
+    export PATH="$TOP/.tools/gnubin:$PATH"
+fi
 
 case "$OS" in
     debian)
@@ -52,6 +55,7 @@ case "$OS" in
             iputils-ping
         ;;
     macos)
+        "$TOP/.tools/setup-gnubin.sh"
         # This benchmark is out of scope for macOS validation (spec: net/execute.sh
         # manipulates live firewall/NAT rules directly) and net/execute.sh uses Linux
         # network namespaces (`ip netns`, veth pairs), which have no macOS kernel

@@ -1,6 +1,13 @@
 #!/bin/sh
 set -eu
 
+
+TOP=$(git rev-parse --show-toplevel)
+OS=$("$TOP/.tools/detect-os.sh")
+if [ "$OS" = "macos" ]; then
+    export PATH="$TOP/.tools/gnubin:$PATH"
+fi
+
 BASE_DIR="$(dirname "$(readlink -f "$0")")"
 TESTS_DIR="${BASE_DIR}/makeself/test"
 LOGFILE="${BASE_DIR}/run_results.log"
