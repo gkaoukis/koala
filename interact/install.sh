@@ -1,26 +1,63 @@
 #!/bin/sh
 
-sudo apt-get update -y
+TOP=$(git rev-parse --show-toplevel)
 
-sudo apt-get install -y \
-    coreutils \
-    build-essential \
-    git \
-    curl \
-    wget \
-    bzip2 \
-    gpg \
-    tar \
-    coreutils \
-    sed \
-    gawk \
-    git \
-    autoconf \
-    automake \
-    build-essential \
-    python3 \
-    python3-pip \
-    python3-venv \
-    ncurses-bin \
-    ca-certificates \
+OS=$("$TOP/.tools/detect-os.sh")
+
+COMMON_PACKAGES="
+    coreutils
+    git
+    curl
+    wget
+    bzip2
+    gpg
+    tar
+    sed
+    gawk
+    autoconf
+    automake
+    python3
+    python3-pip
+    ca-certificates
     zsh
+"
+
+case "$OS" in
+    fedora)
+        PKG_MANAGER="dnf"
+        PACKAGES="
+            $COMMON_PACKAGES
+            gcc
+            gcc-c++
+            make
+            python3-virtualenv
+            ncurses
+        "
+        sudo dnf makecache
+        ;;
+    *)
+        PKG_MANAGER="apt-get"
+        PACKAGES="
+            $COMMON_PACKAGES
+            build-essential
+            python3-venv
+            ncurses-bin
+        "
+        sudo apt-get update
+        ;;
+esac
+
+for pkg in $PACKAGES; do
+    case "$OS" in
+        fedora)
+            if ! rpm -q "$pkg" >/dev/null 2>&1; then
+                sudo dnf install -y "$pkg"
+            fi
+            ;;
+        *)
+            if ! dpkg -l | grep -q "^ii\s\+$pkg\s"; then
+                sudo apt-get install -y --no-install-recommends "$pkg"
+            fi
+            ;;
+    esac
+done

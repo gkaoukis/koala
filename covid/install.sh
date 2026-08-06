@@ -1,11 +1,46 @@
-#!/bin/bash
+#!/bin/sh
 
-sudo apt-get update 
+TOP=$(git rev-parse --show-toplevel)
 
-pkgs="coreutils curl gzip gawk sed git"
+OS=$("$TOP/.tools/detect-os.sh")
 
-for pkg in $pkgs; do
-    if ! dpkg -s "$pkg" &> /dev/null; then
-        sudo apt-get install --no-install-recommends -y "$pkg"
-    fi
+COMMON_PACKAGES="
+    coreutils
+    curl
+    gzip
+    gawk
+    sed
+    git
+"
+
+case "$OS" in
+    fedora)
+        PKG_MANAGER="dnf"
+        PACKAGES="
+            $COMMON_PACKAGES
+        "
+        sudo dnf makecache
+        ;;
+    *)
+        PKG_MANAGER="apt-get"
+        PACKAGES="
+            $COMMON_PACKAGES
+        "
+        sudo apt-get update
+        ;;
+esac
+
+for pkg in $PACKAGES; do
+    case "$OS" in
+        fedora)
+            if ! rpm -q "$pkg" >/dev/null 2>&1; then
+                sudo dnf install -y "$pkg"
+            fi
+            ;;
+        *)
+            if ! dpkg -l | grep -q "^ii\s\+$pkg\s"; then
+                sudo apt-get install --no-install-recommends -y "$pkg"
+            fi
+            ;;
+    esac
 done

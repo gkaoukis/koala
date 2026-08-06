@@ -1,19 +1,67 @@
-#!/bin/bash
+#!/bin/sh
 
-sudo apt-get update
+TOP=$(git rev-parse --show-toplevel)
 
-sudo apt-get install -y --no-install-recommends \
-    python3 \
-    python3-pip \
-    python3-venv \
-    libgl1 \
-    libglib2.0-0 \
-    libjpeg-dev \
-    zstd \
-    ffmpeg \
-    procps \
-    coreutils findutils wget sed unzip curl jq coreutils findutils sed unzip curl imagemagick
+OS=$("$TOP/.tools/detect-os.sh")
 
+COMMON_PACKAGES="
+    python3
+    python3-pip
+    zstd
+    ffmpeg
+    coreutils
+    findutils
+    wget
+    sed
+    unzip
+    curl
+    jq
+"
+
+case "$OS" in
+    fedora)
+        PKG_MANAGER="dnf"
+        PACKAGES="
+            $COMMON_PACKAGES
+            procps-ng
+            python3-virtualenv
+            mesa-libGL
+            glib2
+            libjpeg-turbo-devel
+            ImageMagick
+            perl-Digest-SHA
+        "
+        sudo dnf makecache
+        ;;
+    *)
+        PKG_MANAGER="apt-get"
+        PACKAGES="
+            $COMMON_PACKAGES
+            procps
+            python3-venv
+            libgl1
+            libglib2.0-0
+            libjpeg-dev
+            imagemagick
+        "
+        sudo apt-get update
+        ;;
+esac
+
+for pkg in $PACKAGES; do
+    case "$OS" in
+        fedora)
+            if ! rpm -q "$pkg" >/dev/null 2>&1; then
+                sudo dnf install -y "$pkg"
+            fi
+            ;;
+        *)
+            if ! dpkg -l | grep -q "^ii\s\+$pkg\s"; then
+                sudo apt-get install -y --no-install-recommends "$pkg"
+            fi
+            ;;
+    esac
+done
 
 pip install --break-system-packages --upgrade pip
 pip install --break-system-packages llm
@@ -30,16 +78,17 @@ pip install --break-system-packages numpy \
     opencv-python
 
 # check if ollama is installed
-if ! command -v ollama &> /dev/null
+if ! command -v ollama >/dev/null 2>&1
 then
     echo "Ollama could not be found, installing..."
     curl -fsSL https://ollama.com/install.sh | sh
 else
     echo "Ollama is already installed."
 fi
+
 ollama serve > /dev/null 2>&1 &
 sleep 5
 ollama pull moondream:latest
 
 ollama_pid=$(pgrep ollama)
-kill $ollama_pid
+sudo kill "$ollama_pid"
