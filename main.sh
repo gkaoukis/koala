@@ -1,4 +1,12 @@
 #!/bin/sh
+# shellcheck disable=SC2086,SC2034,SC1091
+# SC2086: $args/$USER_FLAGS/$stats_files/$time_values are deliberately unquoted
+#   accumulator variables — they hold space-separated tokens meant to word-split
+#   into multiple shell arguments; quoting them would collapse multi-arg
+#   forwarding into a single argument and change behavior.
+# SC2034: loop variables (e.g. `for tv in $time_values`) are used only to drive
+#   iteration/counting, not referenced in the loop body.
+# SC1091: the venv activate path is resolved dynamically at runtime.
 
 error() {
     echo "Error: $1" >/dev/stderr
@@ -322,19 +330,29 @@ main() {
 
         elif [ "$measure_time" = "true" ]; then
 
+            # /usr/bin/time is a different, incompatible program on macOS (BSD time:
+            # no -f/-o support) than on Linux (GNU time), despite the same path
+            # existing on both — `command -v` alone can't tell them apart, so branch
+            # on OS instead. macOS gets GNU time from Homebrew's gnu-time formula,
+            # installed as `gtime` (see setup.sh's macos branch).
+            time_bin="/usr/bin/time"
+            if [ "$("$TOP/.tools/detect-os.sh")" = "macos" ]; then
+                time_bin="gtime"
+            fi
+
             if [ "$run_locally" = "true" ]; then
-                if ! command -v /usr/bin/time >/dev/null 2>&1 || ! command -v gawk >/dev/null 2>&1; then
+                if ! command -v "$time_bin" >/dev/null 2>&1 || ! command -v gawk >/dev/null 2>&1; then
                     echo "Please run setup.sh first to install dependencies."
                     exit 1
                 fi
             fi
 
             log 1 "Timing benchmark: $BENCHMARK  (run #$i)"
-            log 2 "Time-cmd: /usr/bin/time -f %e ./execute.sh $args"
+            log 2 "Time-cmd: $time_bin -f %e ./execute.sh $args"
             time_val_file="${BENCHMARK}_${shell_safe}_time_run${i}.txt"
             rm -f "$time_val_file"
 
-            /usr/bin/time -f "%e" -o "$time_val_file" \
+            "$time_bin" -f "%e" -o "$time_val_file" \
                 ./execute.sh $args \
                 1>"${BENCHMARK}.out" \
                 2>"${BENCHMARK}.err"

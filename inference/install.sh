@@ -1,18 +1,35 @@
-#!/bin/bash
+#!/bin/sh
 
-sudo apt-get update
+TOP=$(git rev-parse --show-toplevel)
+OS=$("$TOP/.tools/detect-os.sh")
 
-sudo apt-get install -y --no-install-recommends \
-    python3 \
-    python3-pip \
-    python3-venv \
-    libgl1 \
-    libglib2.0-0 \
-    libjpeg-dev \
-    zstd \
-    ffmpeg \
-    procps \
-    coreutils findutils wget sed unzip curl jq coreutils findutils sed unzip curl imagemagick
+case "$OS" in
+    debian)
+        sudo apt-get update
+
+        sudo apt-get install -y --no-install-recommends \
+            python3 \
+            python3-pip \
+            python3-venv \
+            libgl1 \
+            libglib2.0-0 \
+            libjpeg-dev \
+            zstd \
+            ffmpeg \
+            procps \
+            coreutils findutils wget sed unzip curl jq coreutils findutils sed unzip curl imagemagick
+        ;;
+    macos)
+        # coreutils/findutils/sed are provided by the ticket-03 GNU-utils PATH shim.
+        # libgl1/libglib2.0-0 satisfy Linux (X11/Mesa) wheel deps for torch/tensorflow/
+        # opencv-python; their macOS wheels link against system frameworks instead, so
+        # there's no brew equivalent needed here.
+        brew install python3 jpeg zstd ffmpeg procps wget unzip curl jq imagemagick
+        ;;
+    fedora)
+        :
+        ;;
+esac
 
 
 pip install --break-system-packages --upgrade pip
@@ -30,10 +47,15 @@ pip install --break-system-packages numpy \
     opencv-python
 
 # check if ollama is installed
-if ! command -v ollama &> /dev/null
+if ! command -v ollama >/dev/null 2>&1
 then
     echo "Ollama could not be found, installing..."
     curl -fsSL https://ollama.com/install.sh | sh
+    # On macOS the installer places the CLI at /usr/local/bin/ollama (as a symlink
+    # into /Applications/Ollama.app), but a non-interactive shell's default PATH
+    # doesn't include /usr/local/bin, so `command -v ollama` below would still miss
+    # it. This is harmless to prepend on any OS.
+    export PATH="/usr/local/bin:$PATH"
 else
     echo "Ollama is already installed."
 fi
@@ -42,4 +64,6 @@ sleep 5
 ollama pull moondream:latest
 
 ollama_pid=$(pgrep ollama)
-kill $ollama_pid
+if [ -n "$ollama_pid" ]; then
+    kill "$ollama_pid"
+fi

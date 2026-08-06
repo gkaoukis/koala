@@ -1,21 +1,41 @@
-#!/bin/bash
+#!/bin/sh
 
-sudo apt-get update
+TOP=$(git rev-parse --show-toplevel)
+OS=$("$TOP/.tools/detect-os.sh")
 
-sudo apt-get install -y --no-install-recommends \
-    wget \
-    unzip \
-    git \
-    libgl1 \
-    libglib2.0-0 \
-    libjpeg-dev \
-    zstd \
-    ffmpeg \
-    imagemagick \
-    parallel \
-    python3 \
-    python3-pip \
-    python3-venv
+case "$OS" in
+    debian)
+        sudo apt-get update
+
+        sudo apt-get install -y --no-install-recommends \
+            wget \
+            unzip \
+            git \
+            libgl1 \
+            libglib2.0-0 \
+            libjpeg-dev \
+            zstd \
+            ffmpeg \
+            imagemagick \
+            parallel \
+            python3 \
+            python3-pip \
+            python3-venv
+        ;;
+    macos)
+        # libgl1/libglib2.0-0 satisfy Linux (X11/Mesa) wheel deps for scikit-learn's
+        # dependency chain; the macOS wheels don't need them.
+        # openblas: scipy==1.13.1 predates whatever Python version brew's python3
+        # currently tracks, so no prebuilt wheel matches and pip falls back to a
+        # source build, which needs OpenBLAS on PKG_CONFIG_PATH to succeed.
+        brew install wget unzip git jpeg zstd ffmpeg imagemagick parallel python3 openblas
+        openblas_prefix="$(brew --prefix openblas)"
+        export PKG_CONFIG_PATH="$openblas_prefix/lib/pkgconfig:$PKG_CONFIG_PATH"
+        ;;
+    fedora)
+        :
+        ;;
+esac
 
 pip install --break-system-packages --upgrade pip
 pip install --break-system-packages \
