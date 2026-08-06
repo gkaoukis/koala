@@ -1,7 +1,10 @@
 #!/bin/sh
 
 TOP=$(git rev-parse --show-toplevel)
-# shellcheck disable=SC2034
+
 OS=$("$TOP/.tools/detect-os.sh")
 
-# This benchmark does not have any dependencies.
+if [ "$OS" = "fedora" ]; then
+    sudo dnf makecache
+    sudo dnf install perl-Digest-SHA -y
+fi

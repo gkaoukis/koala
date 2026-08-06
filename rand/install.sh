@@ -13,6 +13,7 @@ case "$OS" in
         brew install wget unzip
         ;;
     fedora)
-        :
+        sudo dnf makecache
+        sudo dnf install -y wget coreutils unzip
         ;;
 esac

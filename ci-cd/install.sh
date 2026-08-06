@@ -25,7 +25,15 @@ case "$OS" in
         brew install wget unzip pbzip2 zstd gnupg
         ;;
     fedora)
-        :
+        pkgs="binutils git build-essential coreutils wget unzip make pbzip2 bzip2 zstd gnupg"
+
+        sudo dnf makecache
+
+        for pkg in $pkgs; do
+            if ! rpm -q "$pkg" >/dev/null 2>&1; then
+                sudo dnf install -y "$pkg"
+            fi
+        done
         ;;
 esac
 

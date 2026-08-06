@@ -20,6 +20,14 @@ case "$OS" in
         brew install curl gzip git
         ;;
     fedora)
-        :
+        pkgs="coreutils curl gzip gawk sed git"
+
+        sudo dnf makecache
+
+        for pkg in $pkgs; do
+            if ! rpm -q "$pkg" >/dev/null 2>&1; then
+                sudo dnf install -y "$pkg"
+            fi
+        done
         ;;
 esac

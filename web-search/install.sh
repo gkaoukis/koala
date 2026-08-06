@@ -52,7 +52,36 @@ case "$OS" in
         fi
         ;;
     fedora)
-        :
+        pkgs="p7zip curl wget unzip npm"
+
+        sudo dnf makecache
+        for pkg in $pkgs; do
+          if ! rpm -q "$pkg" > /dev/null 2>&1 ; then
+            sudo dnf install -y "$pkg"
+          fi
+        done
+
+        # Install pandoc if not installed
+        if ! command -v pandoc > /dev/null 2>&1 ; then
+          sudo dnf install -y pandoc
+        fi
+
+        # Install Node.js (18.x) and npm via NodeSource
+        if ! command -v node > /dev/null 2>&1 ; then
+          curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
+          sudo dnf install -y nodejs
+        fi
+
+        # Verify node and npm installation
+        if ! command -v node > /dev/null 2>&1 ; then
+          echo "Node.js installation failed."
+          exit 1
+        fi
+
+        if ! rpm -q nodejs > /dev/null 2>&1 ; then
+            curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
+            sudo dnf install -y nodejs
+        fi
         ;;
 esac
 
@@ -62,4 +91,3 @@ if [ ! -d node_modules ]; then
 fi
 
 cd -  || exit 1
-

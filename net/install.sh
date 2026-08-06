@@ -76,6 +76,49 @@ case "$OS" in
             check iputils
         ;;
     fedora)
-        :
+        # Same out-of-scope caveats as the macos branch above re: this benchmark's
+        # Linux-kernel-specific network namespace / iptables usage — packages are
+        # still mapped below per the upstream Fedora port. The repo.charm.sh apt
+        # keyring/source setup in the debian branch is apt-specific and skipped here.
+        sudo dnf makecache
+
+        sudo dnf install -y \
+            gcc \
+            gcc-c++ \
+            make \
+            git \
+            curl \
+            wget \
+            gpg \
+            automake \
+            flex \
+            tar \
+            postgresql-devel \
+            pcre-devel \
+            openssl-devel \
+            libpcap-devel \
+            libtool-ltdl-devel \
+            bison \
+            python3 \
+            python3-pip \
+            python3-virtualenv \
+            net-tools \
+            libxslt \
+            bind-utils \
+            nc \
+            nmap \
+            lolcat \
+            masscan \
+            bind \
+            geoip \
+            hwinfo \
+            autoconf \
+            iproute \
+            iptables \
+            ipset \
+            postgresql-server \
+            postgresql-contrib \
+            check \
+            iputils
         ;;
 esac

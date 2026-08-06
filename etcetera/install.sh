@@ -15,7 +15,9 @@ case "$OS" in
             pkg-config
 
         cd /tmp || exit 1
-        git clone https://github.com/rpodgorny/unionfs-fuse.git
+        if [ ! -d unionfs-fuse ]; then
+            git clone https://github.com/rpodgorny/unionfs-fuse.git
+        fi
         cd /tmp/unionfs-fuse || exit 1
         make -j"$(nproc)"
         sudo make install
@@ -31,6 +33,21 @@ case "$OS" in
         brew install pkg-config
         ;;
     fedora)
-        :
+        sudo dnf makecache
+        sudo dnf install -y \
+            dc \
+            coreutils \
+            gawk \
+            fuse3-devel \
+            fuse3 \
+            pkg-config
+
+        cd /tmp || exit 1
+        if [ ! -d unionfs-fuse ]; then
+            git clone https://github.com/rpodgorny/unionfs-fuse.git
+        fi
+        cd /tmp/unionfs-fuse || exit 1
+        make -j"$(nproc)"
+        sudo make install
         ;;
 esac

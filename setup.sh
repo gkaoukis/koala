@@ -1,10 +1,10 @@
 #!/bin/sh
 set -e
 
-cd "$(realpath "$(dirname "$0")")" || exit 1
-
 TOP=$(git rev-parse --show-toplevel)
 OS=$("$TOP/.tools/detect-os.sh")
+
+PYTHON_VER="python3"
 
 case "$OS" in
     debian)
@@ -23,13 +23,23 @@ case "$OS" in
         brew install autoconf automake libtool cloc gnu-time gawk jq python3
         ;;
     fedora)
-        :
+        sudo dnf makecache
+        sudo dnf install -y git procps-ng autoconf automake libtool \
+            gcc gcc-c++ make \
+            cloc time gawk jq strace lsof \
+            python3.11 \
+            python3.11-devel \
+            python3-pip
+        PYTHON_VER="python3.11"
         ;;
 esac
 
+cd "$(dirname "$0")" || exit 1
+cd "$(pwd -P)" || exit 1
+
 VENV_DIR="$TOP/venv"
 rm -rf "$VENV_DIR"
-python3 -m venv "$VENV_DIR"
+$PYTHON_VER -m venv "$VENV_DIR"
 # shellcheck disable=SC1091
 . "$VENV_DIR/bin/activate"
 

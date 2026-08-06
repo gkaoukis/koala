@@ -33,11 +33,30 @@ case "$OS" in
         export PKG_CONFIG_PATH="$openblas_prefix/lib/pkgconfig:$PKG_CONFIG_PATH"
         ;;
     fedora)
-        :
+        sudo dnf makecache
+
+        sudo dnf install -y \
+            wget \
+            unzip \
+            git \
+            zstd \
+            ffmpeg \
+            python3 \
+            python3-pip \
+            python3-virtualenv \
+            python3-devel \
+            gcc \
+            gcc-c++ \
+            mesa-libGL \
+            glib2 \
+            libjpeg-turbo-devel \
+            ImageMagick \
+            parallel
         ;;
 esac
 
 pip install --break-system-packages --upgrade pip
+
 pip install --break-system-packages \
     joblib==1.4.2 \
     numpy==1.26.4 \

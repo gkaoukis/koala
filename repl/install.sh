@@ -25,6 +25,14 @@ case "$OS" in
         brew install bash curl git gpatch gnu-time
         ;;
     fedora)
-        :
+        sudo dnf makecache
+
+        pkgs="bash curl grep gawk iptables procps-ng net-tools fail2ban iproute git patch time"
+
+        for pkg in $pkgs; do
+            if ! rpm -q "$pkg" >/dev/null 2>&1; then
+                sudo dnf install -y "$pkg"
+            fi
+        done
         ;;
 esac

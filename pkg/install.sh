@@ -71,10 +71,55 @@ case "$OS" in
         brew install node
         ;;
     fedora)
-        :
+        # makedeb has no Fedora support either (Debian-packaging-specific), so it's
+        # skipped here too — see the macos branch's comment above for why the rest
+        # of makedeb's build dependencies (Qt, X11 dev libs, ncurses, SELinux, RPC
+        # libs, ...) only matter for scripts/pacaur.sh, which is Linux/apt-only.
+        sudo dnf makecache
+
+        sudo dnf install -y \
+            gpg \
+            wget \
+            git \
+            unzip \
+            zip \
+            zstd \
+            nodejs \
+            ffmpeg \
+            unrtf \
+            tcpdump \
+            cmake \
+            gcc \
+            gcc-c++ \
+            make \
+            libtool \
+            npm \
+            ncurses-devel \
+            xz-devel \
+            bzip2-devel \
+            libarchive \
+            ImageMagick \
+            openssl-devel \
+            qt-creator \
+            qt5-qtbase-devel \
+            libtirpc-devel \
+            libSM-devel \
+            libICE-devel \
+            libXt-devel \
+            libX11-devel \
+            libXdmcp-devel \
+            libselinux-devel \
+            readline-devel \
+            java-latest-openjdk-devel
+
+        # Install Node.js, if the earlier dnf install of nodejs somehow didn't take
+        if ! command -v node > /dev/null 2>&1 ; then
+          sudo dnf install -y nodejs
+        fi
         ;;
 esac
 
+TOP=$(git rev-parse --show-toplevel)
 URL="https://atlas.cs.brown.edu/data"
 installdir="$TOP/pkg/inputs"
 

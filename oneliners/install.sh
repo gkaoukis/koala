@@ -22,6 +22,14 @@ case "$OS" in
         brew install wget file dos2unix mawk
         ;;
     fedora)
-        :
+        pkgs="wget util-linux file dos2unix grep findutils mawk"
+
+        sudo dnf makecache
+
+        for pkg in $pkgs; do
+            if ! rpm -q "$pkg" >/dev/null 2>&1; then
+                sudo dnf install -y "$pkg"
+            fi
+        done
         ;;
 esac

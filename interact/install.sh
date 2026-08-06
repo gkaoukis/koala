@@ -40,6 +40,28 @@ case "$OS" in
         brew install git curl wget bzip2 gnupg gnu-tar autoconf automake python3 ca-certificates
         ;;
     fedora)
-        :
+        sudo dnf makecache
+
+        sudo dnf install -y \
+            coreutils \
+            gcc \
+            gcc-c++ \
+            make \
+            git \
+            curl \
+            wget \
+            bzip2 \
+            gpg \
+            tar \
+            sed \
+            gawk \
+            autoconf \
+            automake \
+            python3 \
+            python3-pip \
+            python3-virtualenv \
+            ncurses \
+            ca-certificates \
+            zsh
         ;;
 esac

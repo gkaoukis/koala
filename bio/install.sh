@@ -33,7 +33,14 @@ case "$OS" in
         brew install wget minimap2 samtools
         ;;
     fedora)
-        :
+        sudo dnf makecache
+        pkgs="gcc gcc-c++ make ncurses-devel bzip2-devel xz-devel libcurl-devel openssl-devel wget zlib-ng-compat-devel minimap2 samtools"
+
+        for pkg in $pkgs; do
+            if ! rpm -q "$pkg" >/dev/null 2>&1; then
+                sudo dnf install -y "$pkg"
+            fi
+        done
         ;;
 esac
 
@@ -134,7 +141,40 @@ case "$OS" in
         # required here; omitted.
         ;;
     fedora)
-        :
+        sudo dnf install -y \
+            gcc \
+            gcc-c++ \
+            make \
+            git \
+            wget \
+            curl \
+            python3 \
+            python3-devel \
+            python3-pip \
+            perl \
+            perl-App-cpanminus \
+            perl-DBI \
+            zlib-ng-compat-devel \
+            bzip2-devel \
+            xz-devel \
+            libcurl-devel \
+            openssl-devel \
+            ncurses-devel \
+            openjdk-17-devel \
+            R \
+            R-devel \
+            gradle \
+            cmake \
+            gffread \
+            gmap \
+            parallel \
+            unzip
+
+        sudo wget -qO /usr/local/bin/liftOver http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/liftOver
+        sudo chmod +x /usr/local/bin/liftOver
+
+        export CFLAGS="-I/usr/include/python3 -I/usr/include/python3/cpython"
+        export CPPFLAGS="$CFLAGS"
         ;;
 esac
 
@@ -153,17 +193,18 @@ pip3 install --no-cache-dir --break-system-packages \
 # 3. Install bioinformatics binaries
 ## samtools & minimap2
 # Prefer system versions if available; otherwise build from source
+NPROC=$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1)
 command -v samtools >/dev/null 2>&1 || { \
     git clone --depth 1 https://github.com/samtools/samtools.git /tmp/samtools \
     && cd /tmp/samtools \
     && autoheader && autoconf -Wno-syntax -Wno-error \
     && ./configure --prefix=/usr/local \
-    && make -j"$(nproc)" && make install \
+    && make -j"$NPROC" && make install \
     && cd / && rm -rf /tmp/samtools; }
 command -v minimap2 >/dev/null 2>&1 || { \
     git clone --depth 1 https://github.com/lh3/minimap2.git /tmp/minimap2 \
     && cd /tmp/minimap2 \
-    && make -j"$(nproc)" \
+    && make -j"$NPROC" \
     && cp minimap2 /usr/local/bin/ \
     && cp ./*.py /usr/local/bin/ \
     && cd / && rm -rf /tmp/minimap2; }
@@ -210,7 +251,7 @@ if [ ! -f /usr/local/bin/nanopolish ]; then
     git clone --recursive https://github.com/jts/nanopolish.git /tmp/nanopolish \
     && cd /tmp/nanopolish \
     && git checkout 480fc85 \
-    && make -j"$(nproc)" \
+    && make -j"$NPROC" \
     && cp nanopolish /usr/local/bin/ \
     && cd / && rm -rf /tmp/nanopolish;
 fi
@@ -265,6 +306,11 @@ cd "${benchmark_dir}" || exit 1
 chmod +x utils/*
 
 # Cleanup
-if [ "$OS" = "debian" ]; then
-    apt-get clean && rm -rf /var/lib/apt/lists/ /tmp/*
-fi
+case "$OS" in
+    debian)
+        apt-get clean && rm -rf /var/lib/apt/lists/ /tmp/*
+        ;;
+    fedora)
+        dnf clean all && rm -rf /var/cache/dnf/ /tmp/*
+        ;;
+esac

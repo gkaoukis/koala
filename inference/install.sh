@@ -27,10 +27,29 @@ case "$OS" in
         brew install python3 jpeg zstd ffmpeg procps wget unzip curl jq imagemagick
         ;;
     fedora)
-        :
+        sudo dnf makecache
+
+        sudo dnf install -y \
+            python3 \
+            python3-pip \
+            python3-virtualenv \
+            zstd \
+            ffmpeg \
+            coreutils \
+            findutils \
+            wget \
+            sed \
+            unzip \
+            curl \
+            jq \
+            procps-ng \
+            mesa-libGL \
+            glib2 \
+            libjpeg-turbo-devel \
+            ImageMagick \
+            perl-Digest-SHA
         ;;
 esac
-
 
 pip install --break-system-packages --upgrade pip
 pip install --break-system-packages llm
@@ -59,6 +78,7 @@ then
 else
     echo "Ollama is already installed."
 fi
+
 ollama serve > /dev/null 2>&1 &
 sleep 5
 ollama pull moondream:latest

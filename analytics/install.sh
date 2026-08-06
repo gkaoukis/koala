@@ -50,7 +50,36 @@ case "$OS" in
         brew install tcpdump curl wget diffutils bcftools unzip git jq cmake jansson libpcap gnu-tar python3 go
         ;;
     fedora)
-        :
+        sudo dnf makecache
+
+        sudo dnf install -y \
+          tcpdump curl wget coreutils diffutils gzip gawk unzip git \
+          jq \
+          cmake \
+          gcc \
+          gcc-c++ \
+          jansson-devel \
+          libpcap-devel \
+          tar \
+          python3 \
+          grep \
+          sed \
+          bc \
+          bcftools
+
+        # Set GO_VERSION *before* using it
+        GO_VERSION=1.24.2
+        echo "Installing Go $GO_VERSION"
+
+        go_install_dir="${eval_dir}/go_install"
+
+        mkdir -p "$go_install_dir"
+        curl -LO "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz"
+        tar -C "$go_install_dir" -xzf "go${GO_VERSION}.linux-amd64.tar.gz"
+        rm -f "go${GO_VERSION}.linux-amd64.tar.gz"
+
+        export GOROOT="$go_install_dir/go"
+        export PATH="$GOROOT/bin:$PATH"
         ;;
 esac
 
