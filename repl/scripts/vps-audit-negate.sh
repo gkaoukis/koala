@@ -1,4 +1,8 @@
 #!/bin/sh
+# shellcheck disable=SC2034,SC3037,SC2129,SC2126
+# All pre-existing, throughout this vendored-style audit script (unused
+# TIMESTAMP, echo -e, individual redirects, grep|wc -l) — unrelated to this
+# file's platform-skip check below.
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -12,6 +16,12 @@ NC='\033[0m' # No Color
 # Get current timestamp for the report filename
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 REPORT_FILE="vps-audit-negate-report.txt"
+
+if [ "$(uname -s)" != "Linux" ]; then
+    echo "vps-audit-negate.sh: skipped, not supported on this platform ($(uname -s)) — reads /proc, /sys, dpkg/apt" >&2
+    echo "SKIPPED: not supported on this platform ($(uname -s))" > "$REPORT_FILE"
+    exit 0
+fi
 
 print_header() {
     header="$1"

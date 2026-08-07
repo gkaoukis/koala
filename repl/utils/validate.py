@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import platform
 import re
 import argparse
 import hashlib
@@ -135,6 +136,12 @@ if __name__ == "__main__":
         help="If specified, generate hashes for the processed files instead of comparing them."
     )
     args = parser.parse_args()
+
+    if not args.generate and platform.system() != "Linux":
+        # vps-audit.sh/vps-audit-negate.sh self-skip here too (they read
+        # /proc, /sys, dpkg/apt — Linux-only).
+        print(f"skipped: not supported on this platform ({platform.system()})")
+        sys.exit(0)
 
     os.makedirs(hash_folder, exist_ok=True)
 

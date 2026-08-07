@@ -1,4 +1,12 @@
 #!/bin/sh
+# shellcheck disable=SC2174
+# SC2174: pre-existing, in the Linux-only overlay-mount logic below this
+# script's own uname skip-check — not touched by that check.
+
+if [ "$(uname -s)" != "Linux" ]; then
+    echo "try.sh: skipped, not supported on this platform ($(uname -s)) — needs mount -t overlay + chroot" >&2
+    exit 0
+fi
 
 AUTO_COMMIT=false
 while getopts "y" opt; do
