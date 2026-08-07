@@ -53,3 +53,10 @@ Next step to actually close this ticket: land issue 04 and issue 06, re-run a fu
 - `inference`: the known `image-annotation.sh`/`ollama serve` race (no readiness wait) is now handled at the harness level — `execute.sh` starts and polls `ollama` itself before invoking the workload script, without touching the workload script. Not yet re-verified end-to-end on the VM.
 
 Updated tally after all of the above (partially re-verified — `ml`, `nlp`, `oneliners`(pending patch decision), `repl`, `unixfun` confirmed; `rand`, `inference`, `pkg`, `etcetera` fixed but not yet re-swept): still open before this ticket can close — a full clean re-sweep to confirm everything together, and the `bio`/`file-mod` content-drift investigation (unrelated to any fix landed so far).
+
+**Update — rand and inference re-verified on the VM:**
+
+- `rand`: `rand [pass]` — confirmed end to end (pickname line-count fix holds).
+- `inference`: the readiness-wait fix is genuinely working — before it, every caption came back blank (`.jpg`/`_1.jpg`/`_2.jpg`/... for all 5 images, per the original finding). After it, 2 of 5 images now get real, non-empty captions. But `inference` still reports `[fail]` for two separate, still-open reasons, neither of which is the readiness race:
+  1. The other 3 of 5 images still produce blank captions (`.jpg`, `_1.jpg`, `_2.jpg`) even with ollama confirmed ready before any calls start — looks like per-call model-response reliability (moondream occasionally returning an empty/unusable response for a given image), not a timing race.
+  2. Even the 2 successful captions don't match the Linux baseline's expected filenames (e.g. produced `urn_of_water_with_three_candles_in_it.jpg` where the baseline expects `floating_candles.jpg`, and `fed.jpg` where it expects `fred.jpg`) — same content-determinism class as `bio`/`file-mod`: `moondream:latest` pulled now vs. whatever produced the original baseline, and/or CPU-only macOS inference vs. whatever ran the baseline, isn't bit-for-bit reproducible even at temperature=0/seed=0.
