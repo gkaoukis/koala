@@ -5,13 +5,22 @@ OS=$("$TOP/.tools/detect-os.sh")
 
 case "$OS" in
     fedora)
-        PKG_MANAGER="dnf"
         PACKAGES="gcc
 libtirpc-devel"
         sudo dnf makecache
         ;;
+    macos)
+        # libtirpc is glibc/Linux-specific (a replacement for legacy Sun RPC
+        # headers no longer bundled with modern glibc); macOS's BSD libc still
+        # ships its own rpc headers natively, so there's no equivalent needed.
+        # gcc's role is filled by Xcode Command Line Tools.
+        PACKAGES=""
+        if ! xcode-select -p >/dev/null 2>&1; then
+            echo "Xcode Command Line Tools required: run 'xcode-select --install' first." >&2
+            exit 1
+        fi
+        ;;
     *)
-        PKG_MANAGER="apt-get"
         PACKAGES="gcc
 libtirpc-dev"
         sudo apt-get update
@@ -24,6 +33,9 @@ for pkg in $PACKAGES; do
             if ! rpm -q "$pkg" >/dev/null 2>&1; then
                 sudo dnf install -y "$pkg"
             fi
+            ;;
+        macos)
+            brew install "$pkg"
             ;;
         *)
             if ! dpkg -l | grep -q "^ii\s\+$pkg\s"; then

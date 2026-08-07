@@ -5,7 +5,6 @@ OS=$("$TOP/.tools/detect-os.sh")
 
 case "$OS" in
     fedora)
-        PKG_MANAGER="dnf"
         PACKAGES="git
             gcc
             tcl
@@ -14,8 +13,17 @@ case "$OS" in
             tcl-devel"
         sudo dnf makecache
         ;;
+    macos)
+        # git/gcc's roles are filled by Xcode Command Line Tools. readline
+        # headers ship with the Xcode SDK too.
+        PACKAGES="tcl-tk
+            libtool"
+        if ! xcode-select -p >/dev/null 2>&1; then
+            echo "Xcode Command Line Tools required: run 'xcode-select --install' first." >&2
+            exit 1
+        fi
+        ;;
     *)
-        PKG_MANAGER="apt-get"
         PACKAGES="git
             gcc
             tcl8.6
@@ -33,6 +41,9 @@ for pkg in $PACKAGES; do
                 sudo dnf install -y "$pkg"
             fi
             ;;
+        macos)
+            brew install "$pkg"
+            ;;
         *)
             if ! dpkg -l | grep -q "^ii\s\+$pkg\s"; then
                 sudo apt-get install -y --no-install-recommends "$pkg"
@@ -40,4 +51,3 @@ for pkg in $PACKAGES; do
             ;;
     esac
 done
-
