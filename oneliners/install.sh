@@ -25,8 +25,6 @@ case "$OS" in
         brew install wget file dos2unix mawk
         ;;
     fedora)
-        # perl-Digest-SHA: validate.sh's shasum needs Digest::SHA, missing
-        # from Fedora's minimal perl by default.
         pkgs="wget util-linux file dos2unix grep findutils mawk perl-Digest-SHA"
 
         sudo dnf makecache

@@ -37,9 +37,6 @@ case "$OS" in
         ;;
     fedora)
         sudo dnf makecache
-        # perl-Digest-SHA: validate.sh's shasum needs Digest::SHA, missing
-        # from Fedora's minimal perl. Installed here rather than the teraseq
-        # section below since shasum runs even for --min.
         pkgs="gcc gcc-c++ make ncurses-devel bzip2-devel xz-devel libcurl-devel openssl-devel wget zlib-ng-compat-devel minimap2 samtools perl-Digest-SHA"
 
         for pkg in $pkgs; do
