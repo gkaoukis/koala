@@ -1,6 +1,6 @@
 # --resources flag hardcodes /koala or /benchmarks as the repo root
 
-Status: ready-for-agent
+Status: done
 Blocked by: none (found during issue-05 validation sweep)
 
 ## Summary
@@ -38,3 +38,9 @@ def rebase(path):
 ## Acceptance
 
 `./main.sh <benchmark> --bare --resources`, run from a repo checked out at an arbitrary path, produces real data in `dynamic_analysis.jsonl` and a non-empty `benchmark_stats.txt` — matching what already happens inside the Docker image today.
+
+## Comments
+
+Fixed: `correct_base`/`rebase` now use `project_root.py`'s `get_project_root()` (already imported in the same file) instead of the two hardcoded paths.
+
+Important scope boundary, confirmed while investigating: `--resources` has a **second**, separate, genuine dependency on Linux specifically — `.tools/io_shell.py` reads `/proc/<pid>/stat` and `/proc/<pid>/io` directly, which don't exist on macOS at all (container or not). This fix only removes the two-specific-paths restriction; it does not and cannot make `--resources` work on macOS bare-metal. It still works on any real Linux — bare-metal Debian/Fedora or a container — which is the actual requirement, not literally "must be a container." Not touching `io_shell.py` — that would be a materially bigger, separate effort (would need a platform-specific process-accounting mechanism to replace procfs) that nobody has asked for.
