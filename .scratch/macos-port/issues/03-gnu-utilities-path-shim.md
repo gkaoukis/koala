@@ -1,6 +1,6 @@
 # GNU utilities on macOS via a private PATH shim
 
-Status: ready-for-agent
+Status: done
 Blocked by: 01, 02
 
 ## Summary
@@ -25,3 +25,9 @@ See `docs/adr/0002-gnu-utilities-via-path-shim.md` and the parent spec at `.scra
 ## Acceptance
 
 For each benchmark exercised in the issue-05 validation sweep, `./main.sh <benchmark> --bare --min` produces output matching the existing `hashes/` baseline on macOS. Any script found to bypass the PATH shim (absolute-path invocation) is patched with explicit env-var indirection and re-verified.
+
+## Comments
+
+Implemented as `.tools/setup-gnubin.sh` (idempotent, brew-installs coreutils/gnu-sed/grep/findutils/gawk, populates `$TOP/.tools/gnubin` by reusing each formula's own `libexec/gnubin`) wired into all 90 stage scripts across 18 benchmarks. No absolute-path-invocation cases found needing the env-var fallback.
+
+The shim mechanism itself is confirmed working — flipped `analytics`, `covid`, `nlp`, `ml`, `interact`, `unixfun` to `[pass]` on macOS that were previously failing pre-shim. But the ticket's literal acceptance line ("all benchmarks in the sweep hash-match") is not met — the remaining failures are unrelated to GNU-utility availability: issue 04 (Linux-only skip behavior, still open), and separately-tracked content/determinism drift (see issue 05's comments) that reproduces identically on stock Debian and Fedora containers, i.e. isn't a macOS/shim problem. Closing this ticket on the shim's own merits rather than blocking it on unrelated open issues.

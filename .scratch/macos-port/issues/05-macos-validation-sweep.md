@@ -23,3 +23,24 @@ See the parent spec at `.scratch/macos-port/spec.md`.
 ## Acceptance
 
 All 17 non-`net` benchmarks pass `--bare --min` validation on macOS. `net` is explicitly and permanently excluded from this and any future automated macOS run.
+
+## Comments
+
+Not yet met. Latest full macOS sweep (Tart VM, after the Fedora-PR merge, the GNU shim, and the Python 3.11 pin):
+
+| Result | Benchmarks |
+|---|---|
+| `[pass]` | analytics, covid, interact, ml, nlp |
+| `[fail]` | bio, ci-cd, etcetera, file-mod, pkg, rand |
+| `TIMEOUT` (300s guard) | oneliners, repl, unixfun |
+| untested | web-search (never run, any session) |
+
+Same 14-benchmark set also run in fresh Debian and Fedora podman containers this session, specifically to separate "macOS-specific" from "pre-existing everywhere" failures:
+
+- `oneliners` hangs **only** on macOS (passes cleanly on both containers) — root-caused and fixed, see issue 06. Not yet applied to the tree (patch pending review).
+- `bio`/`etcetera`/`file-mod`/`pkg`/`rand` fail **identically** on Debian and Fedora, not just macOS — these are pre-existing content/determinism issues (chroot privilege limits for `etcetera`, ffmpeg/imagemagick encoder version drift for `file-mod`, apparent samtools/minimap2 version drift for `bio`, non-deterministic/unseeded output for `pkg`'s `pacaur.sh` half and `rand`), not regressions from this port. `pkg` and `etcetera` are expected to resolve once issue 04 lands (self-skip removes the Linux-only sub-workload from the hash comparison entirely); `bio`/`file-mod`/`rand` need separate investigation not yet started, and may turn out to need baseline-hash regeneration rather than a code fix.
+- `ci-cd` fails identically on macOS and (previously) in containers — traced to `ci-cd/riker/*/install.sh` lacking a macOS branch at all; fixed this session (8 files). Not yet re-verified post-fix in a full sweep.
+- `--resources` flag is broken on any `--bare` run regardless of OS — see issue 07 (separate from this ticket's `--min` hash-matching scope, found as a side investigation).
+- `repl`/`unixfun` timing out in the last macOS sweep look like resource contention from being deep in a long back-to-back sweep (both completed fine on their own, and passed cleanly in both containers) rather than real bugs — not confirmed either way, needs a clean isolated re-run.
+
+Next step to actually close this ticket: land issue 04 and issue 06, re-run a full clean sweep (isolated re-runs for `repl`/`unixfun` specifically), and separately scope the `bio`/`file-mod`/`rand` content-drift investigation.

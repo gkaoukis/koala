@@ -24,3 +24,13 @@ See the parent spec at `.scratch/macos-port/spec.md`.
 ## Acceptance
 
 Running `pkg`'s execute stage on macOS produces a clear skip message and log entry for the `pacaur` portion (not a build failure), while the `proginf` portion still runs and validates normally.
+
+## Comments
+
+Still not implemented — confirmed still open across multiple validation sweeps (macOS Tart VM, and Debian/Fedora podman containers this session):
+
+- `pkg/scripts/pacaur.sh` does not self-skip; it runs and attempts to use `makedeb`, which isn't installed on macOS by design (see `pkg/install.sh`'s macos branch comment), contributing to `pkg [fail]`.
+- `etcetera/scripts/try.sh` does not self-skip; it runs `mount -t overlay` + `chroot` unconditionally. Confirmed failing the same way on macOS *and* inside rootless Debian/Fedora containers (the container case is a privilege limitation — `mount`/`chroot` typically need `CAP_SYS_ADMIN`, not available rootless — a real Linux failure mode too, not just further evidence for the macOS skip).
+- `repl/scripts/vps-audit.sh`/`vps-audit-negate.sh` — not re-verified this session, but nothing has touched `repl/scripts/` since the original ticket-02 finding; almost certainly still unaddressed.
+
+Still the highest-leverage single remaining ticket: it's the most likely of the open items to directly flip benchmark results (`pkg`, `etcetera`) from `[fail]` to `[pass]`.
