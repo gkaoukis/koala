@@ -4,12 +4,21 @@ set -e
 TOP=$(git rev-parse --show-toplevel)
 OS=$("$TOP/.tools/detect-os.sh")
 
+# Pinned to 3.11 on every OS, not just left as the generic "python3" — see
+# docs/adr/0004-pin-python-3.11-for-the-shared-venv.md. Short version: this
+# venv is shared by every benchmark (main.sh activates it before calling any
+# install.sh), .tools/requirements.txt's own pins (pandas==3.0.5 among them)
+# require >=3.11, and ml/install.sh's pins (scipy==1.13.1 among them) have no
+# wheels past 3.12 — 3.11 is the version that satisfies both. Debian 12's
+# default python3 already happens to be 3.11; macOS's brew `python3` is a
+# rolling formula (3.14 as of this writing) and needs the explicit pin.
 PYTHON_VER="python3"
 
 case "$OS" in
     debian)
         sudo apt-get update
-        sudo apt-get install -y  git procps autoconf automake libtool build-essential cloc time gawk jq strace lsof python3 python3-pip python3-venv
+        sudo apt-get install -y  git procps autoconf automake libtool build-essential cloc time gawk jq strace lsof python3.11 python3.11-venv python3-pip
+        PYTHON_VER="python3.11"
         ;;
     macos)
         # build-essential's role (a C/C++ toolchain) is filled by Xcode CLT; git
@@ -20,7 +29,8 @@ case "$OS" in
             echo "Xcode Command Line Tools required: run 'xcode-select --install' first." >&2
             exit 1
         fi
-        brew install autoconf automake libtool cloc gnu-time gawk jq python3
+        brew install autoconf automake libtool cloc gnu-time gawk jq python@3.11
+        PYTHON_VER="python3.11"
         ;;
     fedora)
         sudo dnf makecache

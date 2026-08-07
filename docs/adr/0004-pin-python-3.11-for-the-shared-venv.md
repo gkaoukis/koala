@@ -1,0 +1,14 @@
+# Pin Python 3.11 for the shared venv, on every OS
+
+`main.sh` activates a single `$TOP/venv` (created by `setup.sh`) before calling any benchmark's `install.sh`/`fetch.sh`/`execute.sh`/`validate.sh` — it's shared across every benchmark, not per-benchmark. `ml/install.sh` pips into whatever interpreter created that venv, and `ml/scripts/execute.sh` later runs its Python workload with a bare `python3`, which resolves through the same activated venv. There's no separate interpreter selection at the benchmark level — whatever `setup.sh` picked is what every benchmark gets.
+
+On macOS, `setup.sh`'s `macos)` branch used to do `brew install ... python3` — the generic, unversioned Homebrew formula, which tracks whatever CPython release is currently newest (3.14 as of this writing). `ml/install.sh` pins `scipy==1.13.1`/`numpy==1.26.4`/`scikit-learn==1.5.0`, none of which ship a 3.13+ wheel (checked PyPI directly: their newest wheel tag is `cp312`), so under a 3.14 venv `pip install` fell back to a source build, which then failed on OpenBLAS/compiler issues rather than actually running the benchmark.
+
+**Decision**: `setup.sh` pins the venv's interpreter to `python3.11` explicitly on every OS, not just Fedora:
+- `fedora)` already did this (`python3.11`/`PYTHON_VER="python3.11"`) — unchanged.
+- `debian)` now installs `python3.11` explicitly and sets `PYTHON_VER="python3.11"` too, instead of relying on Debian 12's default `python3` happening to already be 3.11 — same behavior today, but robust to a future Debian point release moving the default.
+- `macos)` now does `brew install ... python@3.11` (the versioned formula) and sets `PYTHON_VER="python3.11"`, instead of the rolling `python3`.
+
+**Why 3.11 specifically**: it's the version that satisfies both ends of the range in play. `.tools/requirements.txt` (installed into this same venv by `setup.sh` itself, for the static-analysis/dynamic-analysis tooling) pins `pandas==3.0.5`, `matplotlib==3.11.1`, and `scikit-learn==1.9.0` — checked PyPI: all three declare `requires_python: >=3.11`, so 3.10 or older is not an option here. `ml/install.sh`'s pins (`scipy==1.13.1` etc.) top out at `cp312`. 3.11 is inside both ranges; nothing here forced the choice to 3.11 over 3.12 except that it's what Fedora's branch already used and what Debian 12 already ships by default — matching both rather than introducing a third value.
+
+**Consequences**: `ml/install.sh` itself needed no changes — the fix lives entirely in `setup.sh`, one level up, where the venv is actually created. A future benchmark pinning even-older or even-newer scientific-Python packages that fall outside the 3.11-compatible range would need this revisited (see ADR-0001's per-file philosophy — no centralized package-version-matrix exists here either, so that would again be a manual check against PyPI wheel tags, not something this ADR automates).
