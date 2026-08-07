@@ -1,9 +1,0 @@
-# POSIX-sh conformance pass across harness scripts, done before the OS ports
-
-Koala's core premise is comparing shell interpreters on the same workload via `$KOALA_SHELL`. A workload script that requires bash-only syntax (`[[ ]]`, arrays, `local`, …) cannot actually run under `KOALA_SHELL=dash` or any other POSIX-only interpreter, which undermines that premise regardless of the macOS port. Separately, the harness scripts (`main.sh` and each benchmark's `install.sh`/`fetch.sh`/`execute.sh`/`validate.sh`/`clean.sh`) mostly declare `#!/bin/bash` even though an audit found only 11 of 91 such files contain actual bash-only syntax (`EUID`, `[[ ]]`, `pipefail`, `BASH_SOURCE`, `shopt`) — the rest just need a shebang change.
-
-**Decision**: Convert `main.sh` and all five-script-contract harness scripts to `#!/bin/sh` with POSIX-conformant dialect, preserving behavior exactly. Workload scripts under `scripts/*.sh` are treated as already POSIX-conformant (since they're invoked as `$KOALA_SHELL "$BENCHMARK_SCRIPT"`, where the shebang line is never consulted — only dialect matters) and are fixed opportunistically if a non-conformant one is found during implementation, rather than audited/rewritten wholesale upfront.
-
-**Why now, before the macOS/Fedora ports**: doing this first means the OS-port work (ADR-0001's per-`install.sh` conditionals) lands on top of already-settled `#!/bin/sh` files, instead of two separate waves of edits touching the same lines in the same ~29 files. As a side effect, this also resolves the bash-3.2 incompatibility previously noted in `web-search/validate.sh` (uses `declare -A`/`mapfile`), superseding the isolated one-off fix considered in ADR-0002.
-
-**Sequencing**: no formal cross-contributor coordination with the concurrent Fedora port was deemed necessary — this lands as prerequisite groundwork for the macOS work specifically, ahead of the OS-conditional changes.
