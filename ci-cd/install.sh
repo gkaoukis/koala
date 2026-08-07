@@ -1,60 +1,49 @@
 #!/bin/sh
 
-TOP=$(git rev-parse --show-toplevel)
-
+TOP="$(git rev-parse --show-toplevel)"
 OS=$("$TOP/.tools/detect-os.sh")
-
-COMMON_PACKAGES="
-    binutils
-    git
-    build-essential
-    coreutils
-    wget
-    unzip
-    make
-    pbzip2
-    bzip2
-    zstd
-    gnupg
-"
+if [ "$OS" = "macos" ]; then
+    export PATH="$TOP/.tools/gnubin:$PATH"
+fi
 
 case "$OS" in
-    fedora)
-        PKG_MANAGER="dnf"
-        PACKAGES="
-            $COMMON_PACKAGES
-        "
-        sudo dnf makecache
-        ;;
-    *)
-        PKG_MANAGER="apt-get"
-        PACKAGES="
-            $COMMON_PACKAGES
-        "
-        sudo apt-get update
-        ;;
-esac
+    debian)
+        pkgs="binutils git build-essential coreutils wget unzip make pbzip2 binutils bzip2 zstd gnupg"
 
-for pkg in $PACKAGES; do
-    case "$OS" in
-        fedora)
+        sudo apt-get update
+
+        for pkg in $pkgs; do
+            if ! dpkg -s "$pkg" >/dev/null 2>&1; then
+                sudo apt-get install -y --no-install-recommends "$pkg"
+            fi
+        done
+        ;;
+    macos)
+        "$TOP/.tools/setup-gnubin.sh"
+        # coreutils comes from the PATH shim above.
+        # binutils (ld/as/objdump) is provided by Xcode Command Line Tools.
+        if ! xcode-select -p >/dev/null 2>&1; then
+            echo "Xcode Command Line Tools required: run 'xcode-select --install' first." >&2
+            exit 1
+        fi
+        brew install wget unzip pbzip2 zstd gnupg
+        ;;
+    fedora)
+        pkgs="binutils git build-essential coreutils wget unzip make pbzip2 bzip2 zstd gnupg"
+
+        sudo dnf makecache
+
+        for pkg in $pkgs; do
             if ! rpm -q "$pkg" >/dev/null 2>&1; then
                 sudo dnf install -y "$pkg"
             fi
-            ;;
-        *)
-            if ! dpkg -l | grep -q "^ii\s\+$pkg\s"; then
-                sudo apt-get install -y --no-install-recommends "$pkg"
-            fi
-            ;;
-    esac
-done
+        done
+        ;;
+esac
 
 eval_dir="${TOP}/ci-cd/riker"
 
-min_benchmark="
-    xz-clang
-"
+min_benchmark="xz-clang"
 
 run_min=false
 

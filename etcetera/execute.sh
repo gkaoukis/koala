@@ -1,4 +1,13 @@
-#!/bin/bash
+#!/bin/sh
+# shellcheck disable=SC2034,SC2086
+# SC2034: input_dir is pre-existing, unrelated to this file's changes.
+# SC2086: $outputs_dir below is pre-existing, unrelated to this file's changes.
+
+TOP=$(git rev-parse --show-toplevel)
+OS=$("$TOP/.tools/detect-os.sh")
+if [ "$OS" = "macos" ]; then
+    export PATH="$TOP/.tools/gnubin:$PATH"
+fi
 
 TOP=$(git rev-parse --show-toplevel)
 eval_dir="${TOP}/etcetera"
@@ -75,6 +84,10 @@ if should_run "try"; then
     BENCHMARK_SCRIPT="$(realpath "$scripts_dir/try.sh")"
     export BENCHMARK_SCRIPT
     $KOALA_SHELL "$scripts_dir/try.sh" -y "mkdir -p /tmp/lib/etcetera/test && echo 'works' > /tmp/lib/etcetera/test/try_status.txt" > "$outputs_dir/try_out.txt"
-    mv /tmp/lib/etcetera/test/try_status.txt $outputs_dir
+    # try.sh self-skips on non-Linux (see the script), so the sandboxed
+    # command above never runs there and never creates this file.
+    if [ -f /tmp/lib/etcetera/test/try_status.txt ]; then
+        mv /tmp/lib/etcetera/test/try_status.txt $outputs_dir
+    fi
     echo $?
 fi

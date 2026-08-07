@@ -1,4 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+# shellcheck disable=SC2155
+# SC2155: pre-existing, on the three `export BENCHMARK_SCRIPT="$(realpath
+# ...)"` lines — realpath here never fails in practice (always a file that
+# was just found by should_run's caller). Unrelated to this file's changes.
+
+TOP=$(git rev-parse --show-toplevel)
+OS=$("$TOP/.tools/detect-os.sh")
+if [ "$OS" = "macos" ]; then
+    export PATH="$TOP/.tools/gnubin:$PATH"
+fi
 
 KOALA_SHELL=${KOALA_SHELL:-bash}
 TOP=$(git rev-parse --show-toplevel)
@@ -75,8 +85,27 @@ if should_run "image-annotation"; then
     export BENCHMARK_INPUT_FILE
 
     export BENCHMARK_SCRIPT="$(realpath "$scripts_dir/image-annotation.sh")"
+
+    # image-annotation.sh starts its own `ollama serve` with no readiness
+    # wait before its first `llm` call. Start one here instead, and wait
+    # for it, ahead of that — its own `ollama serve` attempt then just
+    # no-ops (port already bound) once this one is ready.
+    ollama serve >/dev/null 2>&1 &
+    ollama_wait_pid=$!
+    i=0
+    while ! ollama list >/dev/null 2>&1; do
+        i=$((i + 1))
+        if [ "$i" -ge 30 ]; then
+            echo "ollama server did not become ready in time" >&2
+            break
+        fi
+        sleep 1
+    done
+
     $KOALA_SHELL "$scripts_dir/image-annotation.sh" "$img_input_dir" "$img_outputs_dir"
     echo $?
+
+    kill "$ollama_wait_pid" 2>/dev/null
 fi
 
 if should_run "playlist-creation"; then

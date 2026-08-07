@@ -1,4 +1,11 @@
-#!/bin/bash
+#!/bin/sh
+
+
+TOP=$(git rev-parse --show-toplevel)
+OS=$("$TOP/.tools/detect-os.sh")
+if [ "$OS" = "macos" ]; then
+    export PATH="$TOP/.tools/gnubin:$PATH"
+fi
 
 TOP=$(git rev-parse --show-toplevel)
 URL="https://atlas.cs.brown.edu/data"
@@ -34,7 +41,7 @@ fi
 
 if [ ! -f $input_dir/all_cmdsx100.txt ]; then
     touch all_cmdsx100.txt
-    for ((i = 0; i < 100; i++)); do
+    for i in $(seq 1 100); do
         cat all_cmds.txt >>all_cmdsx100.txt
     done
 fi
@@ -51,17 +58,17 @@ fi
 ../scripts/gen_ips.py "$N" >logs-popcount-org_$size.txt
 ../scripts/gen_comm.py "$N" "comm_$size"
 
-if [[ "$size" == "small" ]]; then
+if [ "$size" = "small" ]; then
     if [ ! -f ./10M.txt ]; then
         touch 10M.txt
-        for ((i = 0; i < 10; i++)); do
+        for i in $(seq 1 10); do
             cat 1M.txt >>10M.txt
         done
     fi
 
     if [ ! -f ./30M.txt ]; then
         touch 30M.txt
-        for ((i = 0; i < 3; i++)); do
+        for i in $(seq 1 3); do
             cat 10M.txt >>30M.txt
         done
     fi
@@ -75,7 +82,7 @@ if [[ "$size" == "small" ]]; then
     fi
     rm 1M.txt
     exit 0
-elif [[ "$size" == "min" ]]; then
+elif [ "$size" = "min" ]; then
     if [ ! -d ./chessdata_min ]; then
         archive="chessdata_min.tar.gz"
         wget --no-check-certificate "$URL/oneliners/$archive" -O "$archive"
@@ -89,14 +96,14 @@ fi
 # full size files
 if [ ! -f ./1G.txt ]; then
     touch 1G.txt
-    for ((i = 0; i < 1000; i++)); do
+    for i in $(seq 1 1000); do
         cat 1M.txt >>1G.txt
     done
 fi
 
 if [ ! -f ./3G.txt ]; then
     touch 3G.txt
-    for ((i = 0; i < 3; i++)); do
+    for i in $(seq 1 3); do
         cat 1G.txt >>3G.txt
     done
 fi

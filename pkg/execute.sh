@@ -1,4 +1,11 @@
-#!/bin/bash
+#!/bin/sh
+
+
+TOP=$(git rev-parse --show-toplevel)
+OS=$("$TOP/.tools/detect-os.sh")
+if [ "$OS" = "macos" ]; then
+    export PATH="$TOP/.tools/gnubin:$PATH"
+fi
 
 TOP=$(realpath "$(dirname "$0")")
 
@@ -72,8 +79,8 @@ if should_run "pacaur"; then
     echo "pacaur.sh"
     OUT="$TOP/outputs/aurpkg.$size"
     mkdir -p "${OUT}"
-    if [ "$EUID" -eq 0 ]; then
-      if ! id "user" &>/dev/null; then
+    if [ "$(id -u)" -eq 0 ]; then
+      if ! id "user" >/dev/null 2>&1; then
         echo "Creating user 'user'..."
         useradd -m user
       fi
@@ -94,7 +101,8 @@ if should_run "proginf"; then
     export INDEX="$TOP/inputs/index.$size.txt"
 
     script_file="$TOP/scripts/proginf.sh"
-    export BENCHMARK_SCRIPT=$(realpath "$script_file")
+    BENCHMARK_SCRIPT="$(realpath "$script_file")"
+    export BENCHMARK_SCRIPT
     export BENCHMARK_INPUT_FILE="$TOP/inputs/node_modules"
 
     echo "proginf.sh"

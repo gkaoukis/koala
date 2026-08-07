@@ -1,4 +1,11 @@
-#!/bin/bash
+#!/bin/sh
+
+
+TOP=$(git rev-parse --show-toplevel)
+OS=$("$TOP/.tools/detect-os.sh")
+if [ "$OS" = "macos" ]; then
+    export PATH="$TOP/.tools/gnubin:$PATH"
+fi
 
 TOP=$(git rev-parse --show-toplevel)
 
@@ -7,11 +14,6 @@ input_dir="${eval_dir}/inputs"
 
 URL='https://atlas.cs.brown.edu/data'
 URL=$URL/max-temp
-FROM=2000
-TO=2015
-
-n_samples=99999
-suffix="full"
 
 mkdir -p "${input_dir}"
 
@@ -23,20 +25,20 @@ for arg in "$@"; do
     esac
 done
 
-if [[ "$size" == "min" ]]; then
-    if [[ -f "$input_dir/temperatures.min.txt" && -f "$input_dir/tuft_weather.$size.txt" ]]; then
+if [ "$size" = "min" ]; then
+    if [ -f "$input_dir/temperatures.min.txt" ] && [ -f "$input_dir/tuft_weather.$size.txt" ]; then
         echo "Data already downloaded and extracted."
         exit 0
     fi
     min_inputs="$eval_dir/min_inputs/"
     mkdir -p "$input_dir"
     cp -r "$min_inputs"/* "$input_dir/"
-    python3 $eval_dir/scripts/generate_input.py $input_dir/tuft_weather.$size.txt --size $size
+    python3 "$eval_dir"/scripts/generate_input.py "$input_dir"/tuft_weather."$size".txt --size "$size"
     exit 0
 fi
 
-if [[ "$size" == "small" ]]; then
-    if [[ -f "$input_dir/temperatures.small.txt" && -f "$input_dir/tuft_weather.$size.txt" ]]; then
+if [ "$size" = "small" ]; then
+    if [ -f "$input_dir/temperatures.small.txt" ] && [ -f "$input_dir/tuft_weather.$size.txt" ]; then
         echo "Data already downloaded and extracted."
         exit 0
     fi
@@ -52,11 +54,11 @@ if [[ "$size" == "small" ]]; then
     rm "$input_dir/temperatures.small.tar.gz"
     mv "$input_dir/inputs/temperatures.small.txt" "$input_dir/temperatures.small.txt"
     rm -rf "$input_dir/inputs"
-    python3 $eval_dir/scripts/generate_input.py $input_dir/tuft_weather.$size.txt --size $size
+    python3 "$eval_dir"/scripts/generate_input.py "$input_dir"/tuft_weather."$size".txt --size "$size"
     exit 0
 fi
 
-if [[ -f "$input_dir/temperatures.full.txt" && -f "$input_dir/tuft_weather.$size.txt" ]]; then
+if [ -f "$input_dir/temperatures.full.txt" ] && [ -f "$input_dir/tuft_weather.$size.txt" ]; then
     echo "Data already downloaded and extracted."
     exit 0
 fi
@@ -72,4 +74,4 @@ tar -xzf "$input_dir/temperatures.full.tar.gz" -C "$input_dir" --no-same-owner |
 rm "$input_dir/temperatures.full.tar.gz"
 mv "$input_dir/inputs/temperatures.full.txt" "$input_dir/temperatures.full.txt"
 rm -rf "$input_dir/inputs"
-python3 $eval_dir/scripts/generate_input.py $input_dir/tuft_weather.$size.txt --size $size
+python3 "$eval_dir"/scripts/generate_input.py "$input_dir"/tuft_weather."$size".txt --size "$size"

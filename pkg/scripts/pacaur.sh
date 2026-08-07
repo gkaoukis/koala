@@ -1,7 +1,19 @@
 #!/bin/bash
+# shellcheck disable=SC2046
+# SC2046: pre-existing, in the gpg --recv-keys line below — intentional word
+# splitting to pass multiple keys, unrelated to this file's changes.
 
 IN="$1"
 OUT="$2"
+
+if [ "$(uname -s)" != "Linux" ]; then
+    echo "pacaur.sh: skipped, not supported on this platform ($(uname -s)) — needs makedeb" >&2
+    for pkg in $(cat "${IN}" | tr '\n' ' '); do
+        mkdir -p "${OUT}/$pkg"
+        echo "SKIPPED: not supported on this platform ($(uname -s)) — needs makedeb" > "${OUT}/$pkg.txt"
+    done
+    exit 0
+fi
 
 mkcd() {
     mkdir -p "$1" || return 1

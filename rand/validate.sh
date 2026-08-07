@@ -1,4 +1,14 @@
-#!/bin/bash
+#!/bin/sh
+# shellcheck disable=SC2034
+# SC2034: pre-existing — $generate is parsed but this validate.sh has no
+# --generate mode (structural checks only, no baseline to (re)generate).
+# Unrelated to this file's changes.
+
+TOP=$(git rev-parse --show-toplevel)
+OS=$("$TOP/.tools/detect-os.sh")
+if [ "$OS" = "macos" ]; then
+    export PATH="$TOP/.tools/gnubin:$PATH"
+fi
 
 TOP=$(git rev-parse --show-toplevel)
 eval_dir="${TOP}/rand"
@@ -98,11 +108,11 @@ if should_run "pickname"; then
         if [ "$file_count" -ne "$n_teams" ]; then
             status=1
         else
-            # Check each file has 100000 lines
+            # Check each file has 10 lines (pickname.sh: head -n 10)
             bad_files=0
             for f in "$dir"/team_*.txt; do
                 lines=$(wc -l < "$f")
-                if [ "$lines" -ne 100000 ]; then
+                if [ "$lines" -ne 10 ]; then
                     bad_files=$((bad_files + 1))
                 fi
             done

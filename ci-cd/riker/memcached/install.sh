@@ -5,7 +5,6 @@ OS=$("$TOP/.tools/detect-os.sh")
 
 case "$OS" in
     fedora)
-        PKG_MANAGER="dnf"
         PACKAGES="git
             gcc
             autoconf
@@ -13,8 +12,17 @@ case "$OS" in
             libevent-devel"
         sudo dnf makecache
         ;;
+    macos)
+        # git/gcc's roles are filled by Xcode Command Line Tools.
+        PACKAGES="autoconf
+            automake
+            libevent"
+        if ! xcode-select -p >/dev/null 2>&1; then
+            echo "Xcode Command Line Tools required: run 'xcode-select --install' first." >&2
+            exit 1
+        fi
+        ;;
     *)
-        PKG_MANAGER="apt-get"
         PACKAGES="git
             gcc
             autotools-dev
@@ -31,6 +39,9 @@ for pkg in $PACKAGES; do
                 sudo dnf install -y "$pkg"
             fi
             ;;
+        macos)
+            brew install "$pkg"
+            ;;
         *)
             if ! dpkg -l | grep -q "^ii\s\+$pkg\s"; then
                 sudo apt-get install -y --no-install-recommends "$pkg"
@@ -38,5 +49,3 @@ for pkg in $PACKAGES; do
             ;;
     esac
 done
-
-

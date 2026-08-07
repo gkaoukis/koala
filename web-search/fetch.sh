@@ -1,4 +1,11 @@
-#!/bin/bash
+#!/bin/sh
+
+
+TOP=$(git rev-parse --show-toplevel)
+OS=$("$TOP/.tools/detect-os.sh")
+if [ "$OS" = "macos" ]; then
+    export PATH="$TOP/.tools/gnubin:$PATH"
+fi
 
 cd "$(dirname "$0")" || exit 1
 URL='https://atlas.cs.brown.edu/data'
@@ -25,8 +32,8 @@ for arg in "$@"; do
 	fi
 done
 
-if [[ ! -d "$in/articles$suffix" ]]; then
-	if [[ ! -f "$in/wikipedia$suffix.tar.gz" ]]; then
+if [ ! -d "$in/articles$suffix" ]; then
+	if [ ! -f "$in/wikipedia$suffix.tar.gz" ]; then
 		if $is_min; then
 			echo "Downloading the min dataset."
 			# previously was the small dataset

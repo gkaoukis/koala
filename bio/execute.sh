@@ -1,4 +1,11 @@
-#!/bin/bash
+#!/bin/sh
+
+
+TOP=$(git rev-parse --show-toplevel)
+OS=$("$TOP/.tools/detect-os.sh")
+if [ "$OS" = "macos" ]; then
+    export PATH="$TOP/.tools/gnubin:$PATH"
+fi
 
 # create bam files with regions
 ################### 1KG SAMPLES
@@ -98,7 +105,7 @@ fi
 
 BENCHMARK_INPUT_FILE="$(realpath "inputs/full")"
 export BENCHMARK_INPUT_FILE
-while IFS= read -r script; do
+for script in $teraseq_script_names; do
     if should_run "$script"; then
         script_file="./scripts/$script.sh"
         BENCHMARK_SCRIPT="$(realpath "$script_file")"
@@ -108,4 +115,4 @@ while IFS= read -r script; do
         $KOALA_SHELL "$script_file"
         echo "$?"
     fi
-done <<< "$teraseq_script_names"
+done

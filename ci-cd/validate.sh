@@ -1,11 +1,16 @@
-#!/bin/bash
+#!/bin/sh
+
+
+TOP=$(git rev-parse --show-toplevel)
+OS=$("$TOP/.tools/detect-os.sh")
+if [ "$OS" = "macos" ]; then
+    export PATH="$TOP/.tools/gnubin:$PATH"
+fi
 
 TOP="$(git rev-parse --show-toplevel)"
 eval_dir="${TOP}/ci-cd"
 
-min_benchmark=(
-    "xz-clang"
-)
+min_benchmark="xz-clang"
 
 run_min=false
 selected_scripts=""
@@ -47,7 +52,7 @@ should_run() {
 }
 
 if [ "$run_min" = true ]; then
-    for bench in "${min_benchmark[@]}"; do
+    for bench in $min_benchmark; do
         if should_run "$bench"; then
             script_path="$eval_dir/riker/$bench/validate.sh"
             if [ -x "$script_path" ]; then
