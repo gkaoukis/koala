@@ -38,7 +38,12 @@ case "$OS" in
         ;;
     fedora)
         sudo dnf makecache
-        pkgs="gcc gcc-c++ make ncurses-devel bzip2-devel xz-devel libcurl-devel openssl-devel wget zlib-ng-compat-devel minimap2 samtools"
+        # perl-Digest-SHA: validate.sh's shasum is a Perl script that needs
+        # it, and it's not in Fedora's minimal perl by default (Debian's is;
+        # macOS's shasum ships as part of the base OS either way). Installed
+        # here (not the teraseq section below) since validate.sh's shasum
+        # call runs even for --min, which exits before that section.
+        pkgs="gcc gcc-c++ make ncurses-devel bzip2-devel xz-devel libcurl-devel openssl-devel wget zlib-ng-compat-devel minimap2 samtools perl-Digest-SHA"
 
         for pkg in $pkgs; do
             if ! rpm -q "$pkg" >/dev/null 2>&1; then
