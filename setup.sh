@@ -4,14 +4,10 @@ set -e
 TOP=$(git rev-parse --show-toplevel)
 OS=$("$TOP/.tools/detect-os.sh")
 
-# Pinned to 3.11 on every OS, not just left as the generic "python3" — see
-# docs/adr/0004-pin-python-3.11-for-the-shared-venv.md. Short version: this
-# venv is shared by every benchmark (main.sh activates it before calling any
-# install.sh), .tools/requirements.txt's own pins (pandas==3.0.5 among them)
-# require >=3.11, and ml/install.sh's pins (scipy==1.13.1 among them) have no
-# wheels past 3.12 — 3.11 is the version that satisfies both. Debian 12's
-# default python3 already happens to be 3.11; macOS's brew `python3` is a
-# rolling formula (3.14 as of this writing) and needs the explicit pin.
+# Pinned to 3.11 on every OS: .tools/requirements.txt's pins require >=3.11,
+# and ml/install.sh's pins have no wheels past 3.12. Debian 12's default
+# python3 already happens to be 3.11; macOS's brew `python3` is a rolling
+# formula and needs the explicit pin.
 PYTHON_VER="python3"
 
 case "$OS" in

@@ -63,22 +63,13 @@ case "$OS" in
         ;;
     macos)
         "$TOP/.tools/setup-gnubin.sh"
-        # Everything above beyond nodejs/npm (Qt, X11 dev libs, ncurses, SELinux,
-        # RPC libs, makedeb itself, ...) exists solely to let makedeb build
-        # arbitrary PKGBUILDs for scripts/pacaur.sh. makedeb has no macOS support
-        # at all (see ticket 04 — pacaur.sh self-detects and skips on macOS), so
-        # none of that is needed here. scripts/proginf.sh (the only other script
-        # in this benchmark) is a plain Node.js tool — node is all it needs.
-        # default-jdk (installed in the debian branch above) is unused by both
-        # scripts (grepped pkg/scripts/*.sh for java/jdk/.jar) and is likewise a
-        # makedeb-only dependency; omitted here.
+        # Qt/X11/ncurses/SELinux/RPC libs and makedeb itself are only for
+        # pacaur.sh, which needs makedeb (no macOS support); omitted. The
+        # only other script here, proginf.sh, just needs Node.js.
         brew install node
         ;;
     fedora)
-        # makedeb has no Fedora support either (Debian-packaging-specific), so it's
-        # skipped here too — see the macos branch's comment above for why the rest
-        # of makedeb's build dependencies (Qt, X11 dev libs, ncurses, SELinux, RPC
-        # libs, ...) only matter for scripts/pacaur.sh, which is Linux/apt-only.
+        # makedeb has no Fedora support either; same reasoning as macos above.
         sudo dnf makecache
 
         sudo dnf install -y \

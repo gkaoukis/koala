@@ -8,9 +8,7 @@ if [ "$OS" = "macos" ]; then
 fi
 
 if [ "$OS" = "fedora" ]; then
-    # validate.sh's shasum is a Perl script that needs Digest::SHA, which
-    # isn't in Fedora's minimal perl by default (Debian's is; macOS's shasum
-    # ships as part of the base OS either way).
+    # validate.sh's shasum needs Digest::SHA, missing from Fedora's minimal perl.
     sudo dnf makecache
     sudo dnf install perl-Digest-SHA -y
 fi

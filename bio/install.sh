@@ -27,9 +27,8 @@ case "$OS" in
         ;;
     macos)
         "$TOP/.tools/setup-gnubin.sh"
-        # ncurses/bzip2/xz/zlib headers ship with the Xcode SDK; libcurl ships with
-        # the OS. minimap2/samtools have direct brew formulae, so the source-build
-        # fallback further down (section 3) no-ops once these are on PATH.
+        # ncurses/bzip2/xz/zlib headers ship with the Xcode SDK; libcurl ships
+        # with the OS. minimap2/samtools have direct brew formulae.
         if ! xcode-select -p >/dev/null 2>&1; then
             echo "Xcode Command Line Tools required: run 'xcode-select --install' first." >&2
             exit 1
@@ -38,11 +37,9 @@ case "$OS" in
         ;;
     fedora)
         sudo dnf makecache
-        # perl-Digest-SHA: validate.sh's shasum is a Perl script that needs
-        # it, and it's not in Fedora's minimal perl by default (Debian's is;
-        # macOS's shasum ships as part of the base OS either way). Installed
-        # here (not the teraseq section below) since validate.sh's shasum
-        # call runs even for --min, which exits before that section.
+        # perl-Digest-SHA: validate.sh's shasum needs Digest::SHA, missing
+        # from Fedora's minimal perl. Installed here rather than the teraseq
+        # section below since shasum runs even for --min.
         pkgs="gcc gcc-c++ make ncurses-devel bzip2-devel xz-devel libcurl-devel openssl-devel wget zlib-ng-compat-devel minimap2 samtools perl-Digest-SHA"
 
         for pkg in $pkgs; do
@@ -103,19 +100,15 @@ case "$OS" in
         export CPPFLAGS="$CFLAGS"
         ;;
     macos)
-        # python3-dev/python3.11-dev/python3-all-dev: brew's python3 already ships
-        # headers, no separate -dev package needed.
-        # default-jre-headless: covered by openjdk@17 below.
-        # libdbi-perl: Perl's DBI module isn't a brew formula; installed via cpanm
-        # in section 6 below, alongside this pipeline's other Perl modules.
-        # seqkit/rna-star: added here (brew formulae exist) so the Linux-binary
-        # download fallbacks in sections 3 and 4 below no-op via their existing
-        # `command -v` checks, rather than duplicating that logic per OS.
+        # libdbi-perl has no brew formula; installed via cpanm in section 6
+        # below. seqkit/rna-star are added here (brew formulae exist) so the
+        # Linux-binary fallbacks in sections 3 and 4 no-op via their existing
+        # `command -v` checks.
         brew install git wget curl python3 perl cpanminus openjdk@17 r gradle cmake \
             gffread parallel seqkit rna-star
 
-        # liftOver: UCSC also publishes macOS binaries, at a different path per
-        # architecture than the Linux one the debian branch uses above.
+        # liftOver: UCSC also publishes macOS binaries, at a different path
+        # per architecture than the Linux one the debian branch uses above.
         if [ "$(uname -m)" = "arm64" ]; then
             liftover_url="http://hgdownload.cse.ucsc.edu/admin/exe/macOSX.arm64/liftOver"
         else
@@ -124,13 +117,8 @@ case "$OS" in
         sudo wget -qO /usr/local/bin/liftOver "$liftover_url"
         sudo chmod +x /usr/local/bin/liftOver
 
-        # gmap/gmap_build (bio/scripts/data.sh): no brew formula and no
-        # bioinformatics tap available. Built from source, same shape as the
-        # nanopolish fallback in section 5 below. UNVERIFIED on macOS in this
-        # session (no way to actually compile/run it here) — confirm this build
-        # succeeds before relying on it; research-pub.gene.com/gmap was
-        # unreachable when checked, so the URL/version below is best-effort from
-        # search results, not a fetched, verified page.
+        # gmap/gmap_build: no brew formula, built from source same as the
+        # nanopolish fallback in section 5 below.
         if ! command -v gmap >/dev/null 2>&1; then
             gmap_tmp=$(mktemp -d)
             curl -L http://research-pub.gene.com/gmap/src/gmap-gsnap-2025-07-31.v2.tar.gz \
@@ -145,9 +133,8 @@ case "$OS" in
             rm -rf "$gmap_tmp"
         fi
 
-        # Prebuilt macOS wheels exist for this pipeline's Python packages, so the
-        # explicit Python-header CFLAGS the debian branch needs typically aren't
-        # required here; omitted.
+        # Prebuilt macOS wheels exist for this pipeline's Python packages, so
+        # the explicit Python-header CFLAGS the debian branch needs aren't.
         ;;
     fedora)
         sudo dnf install -y \

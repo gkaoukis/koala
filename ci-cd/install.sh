@@ -20,7 +20,7 @@ case "$OS" in
         ;;
     macos)
         "$TOP/.tools/setup-gnubin.sh"
-        # coreutils is provided by the ticket-03 GNU-utils PATH shim.
+        # coreutils comes from the PATH shim above.
         # binutils (ld/as/objdump) is provided by Xcode Command Line Tools.
         if ! xcode-select -p >/dev/null 2>&1; then
             echo "Xcode Command Line Tools required: run 'xcode-select --install' first." >&2

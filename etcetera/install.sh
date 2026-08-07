@@ -27,13 +27,10 @@ case "$OS" in
         ;;
     macos)
         "$TOP/.tools/setup-gnubin.sh"
-        # coreutils/gawk are provided by the ticket-03 GNU-utils PATH shim. dc ships
-        # with the base OS already. libfuse3/unionfs-fuse are here only for
-        # scripts/try.sh's nested-mount fallback; try.sh is Linux-only end to end
-        # (mount -t overlay, chroot, GNU-only stat/df/mktemp flags) — see ticket 04
-        # for the self-detect-and-skip candidate. Nothing else in this benchmark
-        # (scripts/sieve.sh) needs libfuse3/unionfs-fuse, so they're intentionally
-        # not installed here.
+        # coreutils/gawk come from the PATH shim above; dc ships with the
+        # base OS. libfuse3/unionfs-fuse are only for try.sh's nested-mount
+        # fallback, and try.sh is Linux-only end to end (mount -t overlay,
+        # chroot); not installed here.
         brew install pkg-config
         ;;
     fedora)

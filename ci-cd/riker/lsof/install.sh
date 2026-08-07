@@ -10,10 +10,8 @@ libtirpc-devel"
         sudo dnf makecache
         ;;
     macos)
-        # libtirpc is glibc/Linux-specific (a replacement for legacy Sun RPC
-        # headers no longer bundled with modern glibc); macOS's BSD libc still
-        # ships its own rpc headers natively, so there's no equivalent needed.
-        # gcc's role is filled by Xcode Command Line Tools.
+        # libtirpc is glibc-specific; macOS's BSD libc ships its own rpc
+        # headers natively. gcc's role is filled by Xcode Command Line Tools.
         PACKAGES=""
         if ! xcode-select -p >/dev/null 2>&1; then
             echo "Xcode Command Line Tools required: run 'xcode-select --install' first." >&2

@@ -20,15 +20,13 @@ case "$OS" in
         ;;
     macos)
         "$TOP/.tools/setup-gnubin.sh"
-        # grep/findutils are provided by the ticket-03 GNU-utils PATH shim.
-        # bsdmainutils (hexdump/look/colcrt/...) is Debian's packaging of BSD
-        # tools macOS already ships natively.
+        # grep/findutils come from the PATH shim above; bsdmainutils tools
+        # ship natively on macOS.
         brew install wget file dos2unix mawk
         ;;
     fedora)
-        # perl-Digest-SHA: validate.sh's shasum is a Perl script that needs
-        # it, and it's not in Fedora's minimal perl by default (Debian's is;
-        # macOS's shasum ships as part of the base OS either way).
+        # perl-Digest-SHA: validate.sh's shasum needs Digest::SHA, missing
+        # from Fedora's minimal perl by default.
         pkgs="wget util-linux file dos2unix grep findutils mawk perl-Digest-SHA"
 
         sudo dnf makecache

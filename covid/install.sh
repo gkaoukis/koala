@@ -20,7 +20,7 @@ case "$OS" in
         ;;
     macos)
         "$TOP/.tools/setup-gnubin.sh"
-        # coreutils/gawk/sed are provided by the ticket-03 GNU-utils PATH shim
+        # coreutils/gawk/sed come from the PATH shim above
         brew install curl gzip git
         ;;
     fedora)

@@ -56,21 +56,9 @@ case "$OS" in
         ;;
     macos)
         "$TOP/.tools/setup-gnubin.sh"
-        # This benchmark is out of scope for macOS validation (spec: net/execute.sh
-        # manipulates live firewall/NAT rules directly) and net/execute.sh uses Linux
-        # network namespaces (`ip netns`, veth pairs), which have no macOS kernel
-        # equivalent at all. Dependencies are still mapped below per request, but note
-        # what genuinely has no macOS equivalent:
-        #   - iptables: brew has a formula, but it doesn't control macOS's firewall
-        #     (pf), so it installs without being functionally useful here.
-        #   - ipset, iproute2, net-tools, hwinfo: Linux-kernel/procfs-specific tools
-        #     with no brew formula and no macOS equivalent; omitted.
-        #   - geoip-bin: no matching brew formula found (geoipupdate is a different
-        #     tool, for updating MaxMind DB files, not the CLI lookup utility);
-        #     omitted.
-        #   - the repo.charm.sh apt keyring/source setup at the top of the debian
-        #     branch installs nothing from that repo anywhere in this benchmark
-        #     (grepped net/scripts/*.sh) — vestigial, not ported.
+        # net/execute.sh manipulates firewall/NAT rules and Linux network
+        # namespaces directly, with no macOS equivalent. ipset/iproute2/
+        # net-tools/hwinfo/geoip-bin have no brew formula either; omitted.
         if ! xcode-select -p >/dev/null 2>&1; then
             echo "Xcode Command Line Tools required: run 'xcode-select --install' first." >&2
             exit 1
@@ -80,10 +68,6 @@ case "$OS" in
             check iputils
         ;;
     fedora)
-        # Same out-of-scope caveats as the macos branch above re: this benchmark's
-        # Linux-kernel-specific network namespace / iptables usage — packages are
-        # still mapped below per the upstream Fedora port. The repo.charm.sh apt
-        # keyring/source setup in the debian branch is apt-specific and skipped here.
         sudo dnf makecache
 
         sudo dnf install -y \

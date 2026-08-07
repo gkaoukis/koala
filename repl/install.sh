@@ -20,12 +20,9 @@ case "$OS" in
         ;;
     macos)
         "$TOP/.tools/setup-gnubin.sh"
-        # grep/gawk are provided by the ticket-03 GNU-utils PATH shim. iptables/ufw/
-        # procps/net-tools/fail2ban/iproute2 exist here solely for
-        # scripts/vps-audit.sh + vps-audit-negate.sh, which are confirmed Linux-only
-        # (dpkg -l, apt-get -s upgrade, /proc, /sys, Linux-specific sysctl keys) —
-        # see ticket 04. scripts/git-workflow.sh (the only other script here) needs
-        # only bash/git/patch/time, all mapped below.
+        # grep/gawk come from the PATH shim above. iptables/ufw/procps/
+        # net-tools/fail2ban/iproute2 are only for vps-audit.sh, which is
+        # Linux-only; git-workflow.sh just needs bash/git/patch/time.
         brew install bash curl git gpatch gnu-time
         ;;
     fedora)

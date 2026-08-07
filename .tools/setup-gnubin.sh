@@ -1,12 +1,7 @@
 #!/bin/sh
 # Populate $TOP/.tools/gnubin with plain-named symlinks to GNU coreutils/sed/
-# grep/findutils/gawk on macOS, per docs/adr/0002-gnu-utilities-via-path-shim.md
-# and .scratch/macos-port/issues/03-gnu-utilities-path-shim.md.
-#
-# Idempotent: safe to call from every benchmark's install.sh macos) branch on
-# every run. Never touches $PATH itself — callers export
-# "$TOP/.tools/gnubin:$PATH" on macOS separately (each of the five stage
-# scripts does this independently, per ADR-0002).
+# grep/findutils/gawk on macOS. Idempotent; never touches $PATH itself —
+# callers export "$TOP/.tools/gnubin:$PATH" separately.
 set -e
 
 TOP=$(git rev-parse --show-toplevel)

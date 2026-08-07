@@ -24,10 +24,9 @@ case "$OS" in
         ;;
     macos)
         "$TOP/.tools/setup-gnubin.sh"
-        # coreutils/findutils/sed are provided by the ticket-03 GNU-utils PATH shim.
-        # libgl1/libglib2.0-0 satisfy Linux (X11/Mesa) wheel deps for torch/tensorflow/
-        # opencv-python; their macOS wheels link against system frameworks instead, so
-        # there's no brew equivalent needed here.
+        # coreutils/findutils/sed come from the PATH shim above. libgl1/
+        # libglib2.0-0 satisfy Linux (X11/Mesa) wheel deps for torch/
+        # tensorflow/opencv-python; the macOS wheels don't need them.
         brew install python3 jpeg zstd ffmpeg procps wget unzip curl jq imagemagick
         ;;
     fedora)
@@ -74,10 +73,8 @@ if ! command -v ollama >/dev/null 2>&1
 then
     echo "Ollama could not be found, installing..."
     curl -fsSL https://ollama.com/install.sh | sh
-    # On macOS the installer places the CLI at /usr/local/bin/ollama (as a symlink
-    # into /Applications/Ollama.app), but a non-interactive shell's default PATH
-    # doesn't include /usr/local/bin, so `command -v ollama` below would still miss
-    # it. This is harmless to prepend on any OS.
+    # On macOS the installer places the CLI at /usr/local/bin/ollama, not on a
+    # non-interactive shell's default PATH; harmless to prepend on any OS.
     export PATH="/usr/local/bin:$PATH"
 else
     echo "Ollama is already installed."

@@ -43,10 +43,9 @@ case "$OS" in
         ;;
     macos)
         "$TOP/.tools/setup-gnubin.sh"
-        # coreutils/gawk/grep/sed are provided by the ticket-03 GNU-utils PATH shim.
-        # q-text-as-data has no brew formula; omitted — every call to `q` in
-        # analytics/scripts/ray-tracing.sh is already commented out, so nothing
-        # live depends on it today.
+        # coreutils/gawk/grep/sed come from the PATH shim above. q-text-as-data
+        # has no brew formula; every call to `q` in ray-tracing.sh is already
+        # commented out, so nothing depends on it.
         if ! xcode-select -p >/dev/null 2>&1; then
             echo "Xcode Command Line Tools required: run 'xcode-select --install' first." >&2
             exit 1

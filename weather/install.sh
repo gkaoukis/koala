@@ -20,7 +20,7 @@ case "$OS" in
         ;;
     macos)
         "$TOP/.tools/setup-gnubin.sh"
-        # coreutils/gawk/sed/findutils are provided by the ticket-03 GNU-utils PATH shim
+        # coreutils/gawk/sed/findutils come from the PATH shim above
         brew install curl wget unzip gzip git python3
         ;;
     fedora)

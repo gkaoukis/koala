@@ -13,7 +13,7 @@ case "$OS" in
         ;;
     macos)
         "$TOP/.tools/setup-gnubin.sh"
-        # coreutils is provided by the ticket-03 GNU-utils PATH shim
+        # coreutils comes from the PATH shim above
         brew install wget unzip
         ;;
     fedora)

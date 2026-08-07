@@ -27,11 +27,8 @@ case "$OS" in
         ;;
     macos)
         "$TOP/.tools/setup-gnubin.sh"
-        # libgl1/libglib2.0-0 satisfy Linux (X11/Mesa) wheel deps for scikit-learn's
-        # dependency chain; the macOS wheels don't need them.
-        # openblas: scipy==1.13.1 predates whatever Python version brew's python3
-        # currently tracks, so no prebuilt wheel matches and pip falls back to a
-        # source build, which needs OpenBLAS on PKG_CONFIG_PATH to succeed.
+        # libgl1/libglib2.0-0 satisfy Linux (X11/Mesa) wheel deps for
+        # scikit-learn's dependency chain; the macOS wheels don't need them.
         brew install wget unzip git jpeg zstd ffmpeg imagemagick parallel python3 openblas
         openblas_prefix="$(brew --prefix openblas)"
         export PKG_CONFIG_PATH="$openblas_prefix/lib/pkgconfig:$PKG_CONFIG_PATH"
