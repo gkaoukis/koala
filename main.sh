@@ -276,7 +276,9 @@ main() {
         exit $?
     fi
 
-    . "$TOP/.tools/macos-path.sh"
+    if ! . "$TOP/.tools/macos-path.sh"; then
+        error "Failed to set up the macOS GNU-utils PATH shim (.tools/setup-gnubin.sh failed)"
+    fi
 
     cd "$(dirname "$0")/$BENCHMARK" || error "Could not cd into benchmark folder"
 
@@ -522,7 +524,10 @@ if [ "$1" = "--setup" ]; then
         return 1 2>/dev/null || exit 1
     fi
     # shellcheck disable=SC1091
-    . "$TOP/.tools/macos-path.sh"
+    if ! . "$TOP/.tools/macos-path.sh"; then
+        echo "Error: .tools/setup-gnubin.sh failed; PATH was not changed." >&2
+        return 1 2>/dev/null || exit 1
+    fi
     if [ "$OS" = "macos" ]; then
         echo "GNU utilities on PATH: $TOP/.tools/gnubin (only persists if this was sourced, not executed)."
     else
