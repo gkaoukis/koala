@@ -213,8 +213,10 @@ main() {
 
     VENV_DIR="$TOP/venv"
     if [ ! -d "$VENV_DIR" ]; then
-        log 2 "Creating virtual environment at $VENV_DIR"
-        python3 -m venv "$VENV_DIR"
+        PYTHON_BIN=python3.11
+        command -v "$PYTHON_BIN" >/dev/null 2>&1 || PYTHON_BIN=python3
+        log 2 "Creating virtual environment at $VENV_DIR with $PYTHON_BIN"
+        "$PYTHON_BIN" -m venv "$VENV_DIR"
     fi
     log 2 "Activating virtual environment at $VENV_DIR"
     . "$VENV_DIR/bin/activate"
