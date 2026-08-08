@@ -2,12 +2,6 @@
 
 
 TOP=$(git rev-parse --show-toplevel)
-OS=$("$TOP/.tools/detect-os.sh")
-if [ "$OS" = "macos" ]; then
-    export PATH="$TOP/.tools/gnubin:$PATH"
-fi
-
-TOP=$(git rev-parse --show-toplevel)
 EVAL_DIR="${TOP}/repl"
 REPO_PATH="${EVAL_DIR}/inputs/chromium"
 COMMITS_DIR="${EVAL_DIR}/inputs/commits"

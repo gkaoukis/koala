@@ -62,6 +62,10 @@ To manually execute a single benchmark:
 ```sh
 cd benchmarks/<name>
 
+# macOS only: put GNU coreutils/sed/grep/findutils/gawk on PATH for this shell
+# (the scripts below assume the GNU flavor, same as main.sh sets up for you)
+source ../main.sh --setup
+
 ./install.sh
 
 # This will place input data in the `benchmarks/<name>/inputs` folder
@@ -92,8 +96,8 @@ To control the shell interpreter used to run the benchmarks, you can set the
 
 ### Environment & Setup Notes
 
-**Note:** The setup scripts in this suite are designed for _Debian-based systems_.
-Koala comes with a Docker image, highly recommended when working on non-Debian systems.
+**Note:** The setup scripts in this suite support _Debian-based systems, Fedora, and macOS_ natively (`./setup.sh` detects the OS and installs accordingly).
+Koala also comes with a Docker image, recommended if you'd rather not install dependencies on the host at all.
 
 To build and run the Docker image:
 
@@ -122,7 +126,12 @@ Usage: ./main.sh BENCHMARK_NAME [--time|--resources|--bare|args...]
   --clean, -c      Run the full cleanup script (both inputs and outputs)
   --keep, -k       Keep outputs
   --prune          Run the benchmark on a fresh container (will need to re-download everything on each run)
+  --scripts, -s    Specify which scripts to run (space-separated list)
+  --quiet, -q      Suppress non-essential output (alias for --verbose 0)
+  --verbose N      Verbosity level: 0=silent, 1=info (default), 2=debug
   --help, -h       Show this help message
+
+  source ./main.sh --setup   Set up the macOS GNU-utils PATH shim in your shell
 ```
 
 Flags, apart from those referring to input sizes, can be combined freely (e.g. `--resources --bare -n 5`).

@@ -2,9 +2,6 @@
 
 TOP=$(git rev-parse --show-toplevel)
 OS=$("$TOP/.tools/detect-os.sh")
-if [ "$OS" = "macos" ]; then
-    export PATH="$TOP/.tools/gnubin:$PATH"
-fi
 
 case "$OS" in
     debian)
@@ -55,7 +52,6 @@ case "$OS" in
             iputils-ping
         ;;
     macos)
-        "$TOP/.tools/setup-gnubin.sh"
         # net/execute.sh manipulates firewall/NAT rules and Linux network
         # namespaces directly, with no macOS equivalent. ipset/iproute2/
         # net-tools/hwinfo/geoip-bin have no brew formula either; omitted.

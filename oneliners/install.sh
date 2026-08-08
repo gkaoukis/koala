@@ -2,9 +2,6 @@
 
 TOP=$(git rev-parse --show-toplevel)
 OS=$("$TOP/.tools/detect-os.sh")
-if [ "$OS" = "macos" ]; then
-    export PATH="$TOP/.tools/gnubin:$PATH"
-fi
 
 case "$OS" in
     debian)
@@ -19,8 +16,7 @@ case "$OS" in
         done
         ;;
     macos)
-        "$TOP/.tools/setup-gnubin.sh"
-        # grep/findutils come from the PATH shim above; bsdmainutils tools
+        # grep/findutils come from the PATH shim (main.sh); bsdmainutils tools
         # ship natively on macOS.
         brew install wget file dos2unix mawk
         ;;

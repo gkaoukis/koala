@@ -2,9 +2,6 @@
 
 TOP=$(git rev-parse --show-toplevel)
 OS=$("$TOP/.tools/detect-os.sh")
-if [ "$OS" = "macos" ]; then
-    export PATH="$TOP/.tools/gnubin:$PATH"
-fi
 
 case "$OS" in
     debian)
@@ -26,7 +23,6 @@ case "$OS" in
             python3-venv
         ;;
     macos)
-        "$TOP/.tools/setup-gnubin.sh"
         # libgl1/libglib2.0-0 satisfy Linux (X11/Mesa) wheel deps for
         # scikit-learn's dependency chain; the macOS wheels don't need them.
         brew install wget unzip git jpeg zstd ffmpeg imagemagick parallel python3 openblas

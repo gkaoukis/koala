@@ -2,9 +2,6 @@
 
 TOP=$(git rev-parse --show-toplevel)
 OS=$("$TOP/.tools/detect-os.sh")
-if [ "$OS" = "macos" ]; then
-    export PATH="$TOP/.tools/gnubin:$PATH"
-fi
 
 case "$OS" in
     debian)
@@ -19,8 +16,7 @@ case "$OS" in
         done
         ;;
     macos)
-        "$TOP/.tools/setup-gnubin.sh"
-        # grep/gawk come from the PATH shim above. iptables/ufw/procps/
+        # grep/gawk come from the PATH shim (main.sh). iptables/ufw/procps/
         # net-tools/fail2ban/iproute2 are only for vps-audit.sh, which is
         # Linux-only; git-workflow.sh just needs bash/git/patch/time.
         brew install bash curl git gpatch gnu-time

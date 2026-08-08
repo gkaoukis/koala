@@ -2,9 +2,6 @@
 
 TOP=$(git rev-parse --show-toplevel)
 OS=$("$TOP/.tools/detect-os.sh")
-if [ "$OS" = "macos" ]; then
-    export PATH="$TOP/.tools/gnubin:$PATH"
-fi
 
 case "$OS" in
     debian)
@@ -62,7 +59,6 @@ case "$OS" in
         sudo apt-get install -y --no-install-recommends  default-jdk
         ;;
     macos)
-        "$TOP/.tools/setup-gnubin.sh"
         # Qt/X11/ncurses/SELinux/RPC libs and makedeb itself are only for
         # pacaur.sh, which needs makedeb (no macOS support); omitted. The
         # only other script here, proginf.sh, just needs Node.js.

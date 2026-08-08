@@ -2,9 +2,6 @@
 
 TOP="$(git rev-parse --show-toplevel)"
 OS=$("$TOP/.tools/detect-os.sh")
-if [ "$OS" = "macos" ]; then
-    export PATH="$TOP/.tools/gnubin:$PATH"
-fi
 
 case "$OS" in
     debian)
@@ -19,8 +16,7 @@ case "$OS" in
         done
         ;;
     macos)
-        "$TOP/.tools/setup-gnubin.sh"
-        # coreutils comes from the PATH shim above.
+        # coreutils comes from the PATH shim (main.sh).
         # binutils (ld/as/objdump) is provided by Xcode Command Line Tools.
         if ! xcode-select -p >/dev/null 2>&1; then
             echo "Xcode Command Line Tools required: run 'xcode-select --install' first." >&2

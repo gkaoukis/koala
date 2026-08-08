@@ -4,12 +4,6 @@
 # SC2086: $outputs_dir below is pre-existing, unrelated to this file's changes.
 
 TOP=$(git rev-parse --show-toplevel)
-OS=$("$TOP/.tools/detect-os.sh")
-if [ "$OS" = "macos" ]; then
-    export PATH="$TOP/.tools/gnubin:$PATH"
-fi
-
-TOP=$(git rev-parse --show-toplevel)
 eval_dir="${TOP}/etcetera"
 input_dir="${eval_dir}/inputs"
 scripts_dir="${eval_dir}/scripts"

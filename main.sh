@@ -1,12 +1,18 @@
 #!/bin/sh
-# shellcheck disable=SC2086,SC2034,SC1091
+# shellcheck disable=SC2086,SC2034,SC1091,SC2317
 # SC2086: $args/$USER_FLAGS/$stats_files/$time_values are deliberately unquoted
 #   accumulator variables — they hold space-separated tokens meant to word-split
 #   into multiple shell arguments; quoting them would collapse multi-arg
 #   forwarding into a single argument and change behavior.
 # SC2034: loop variables (e.g. `for tv in $time_values`) are used only to drive
 #   iteration/counting, not referenced in the loop body.
-# SC1091: the venv activate path is resolved dynamically at runtime.
+# SC1091: the venv activate and .tools/macos-path.sh paths are resolved
+#   dynamically at runtime.
+# SC2317: the `return ... || exit ...` pairs in the --setup branch are the
+#   standard sourced-vs-executed idiom — `return` succeeds when this script is
+#   sourced (making `exit` genuinely unreachable there) and fails when it's
+#   executed directly (making `exit` the live path); shellcheck can't see
+#   which case applies at analysis time.
 
 error() {
     echo "Error: $1" >/dev/stderr
@@ -45,6 +51,8 @@ usage() {
     echo "  --quiet, -q      Suppress non-essential output (alias for --verbose 0)"
     echo "  --verbose N      Verbosity level: 0=silent, 1=info (default), 2=debug"
     echo "  --help, -h       Show this help message"
+    echo ""
+    echo "  source $0 --setup   Set up the macOS GNU-utils PATH shim in your shell"
 }
 
 
@@ -266,6 +274,8 @@ main() {
         exit $?
     fi
 
+    . "$TOP/.tools/macos-path.sh"
+
     cd "$(dirname "$0")/$BENCHMARK" || error "Could not cd into benchmark folder"
 
     i=1
@@ -330,13 +340,8 @@ main() {
 
         elif [ "$measure_time" = "true" ]; then
 
-            # /usr/bin/time is a different, incompatible program on macOS (BSD time:
-            # no -f/-o support) than on Linux (GNU time), despite the same path
-            # existing on both — `command -v` alone can't tell them apart, so branch
-            # on OS instead. macOS gets GNU time from Homebrew's gnu-time formula,
-            # installed as `gtime` (see setup.sh's macos branch).
             time_bin="/usr/bin/time"
-            if [ "$("$TOP/.tools/detect-os.sh")" = "macos" ]; then
+            if [ "$OS" = "macos" ]; then
                 time_bin="gtime"
             fi
 
@@ -507,6 +512,22 @@ main() {
     cd - >/dev/null || exit 1
 
 }
+
+if [ "$1" = "--setup" ]; then
+    TOP=$(git rev-parse --show-toplevel 2>/dev/null)
+    if [ -z "$TOP" ]; then
+        echo "Error: not inside the koala git repository" >&2
+        return 1 2>/dev/null || exit 1
+    fi
+    # shellcheck disable=SC1091
+    . "$TOP/.tools/macos-path.sh"
+    if [ "$OS" = "macos" ]; then
+        echo "GNU utilities on PATH: $TOP/.tools/gnubin (only persists if this was sourced, not executed)."
+    else
+        echo "No PATH setup needed on $OS."
+    fi
+    return 0 2>/dev/null || exit 0
+fi
 
 cd "$(dirname "$0")" || error "Could not cd into script folder"
 

@@ -2,9 +2,6 @@
 
 TOP=$(git rev-parse --show-toplevel)
 OS=$("$TOP/.tools/detect-os.sh")
-if [ "$OS" = "macos" ]; then
-    export PATH="$TOP/.tools/gnubin:$PATH"
-fi
 
 case "$OS" in
     debian)
@@ -26,8 +23,7 @@ case "$OS" in
         sudo make install
         ;;
     macos)
-        "$TOP/.tools/setup-gnubin.sh"
-        # coreutils/gawk come from the PATH shim above; dc ships with the
+        # coreutils/gawk come from the PATH shim (main.sh); dc ships with the
         # base OS. libfuse3/unionfs-fuse are only for try.sh's nested-mount
         # fallback, and try.sh is Linux-only end to end (mount -t overlay,
         # chroot); not installed here.

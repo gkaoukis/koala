@@ -2,9 +2,6 @@
 
 TOP=$(git rev-parse --show-toplevel)
 OS=$("$TOP/.tools/detect-os.sh")
-if [ "$OS" = "macos" ]; then
-    export PATH="$TOP/.tools/gnubin:$PATH"
-fi
 
 case "$OS" in
     debian)
@@ -23,8 +20,7 @@ case "$OS" in
             coreutils findutils wget sed unzip curl jq coreutils findutils sed unzip curl imagemagick
         ;;
     macos)
-        "$TOP/.tools/setup-gnubin.sh"
-        # coreutils/findutils/sed come from the PATH shim above. libgl1/
+        # coreutils/findutils/sed come from the PATH shim (main.sh). libgl1/
         # libglib2.0-0 satisfy Linux (X11/Mesa) wheel deps for torch/
         # tensorflow/opencv-python; the macOS wheels don't need them.
         brew install python3 jpeg zstd ffmpeg procps wget unzip curl jq imagemagick

@@ -2,9 +2,6 @@
 
 TOP=$(git rev-parse --show-toplevel)
 OS=$("$TOP/.tools/detect-os.sh")
-if [ "$OS" = "macos" ]; then
-    export PATH="$TOP/.tools/gnubin:$PATH"
-fi
 eval_dir="$TOP/analytics"
 
 case "$OS" in
@@ -42,8 +39,7 @@ case "$OS" in
         export PATH="$GOROOT/bin:$PATH"
         ;;
     macos)
-        "$TOP/.tools/setup-gnubin.sh"
-        # coreutils/gawk/grep/sed come from the PATH shim above. q-text-as-data
+        # coreutils/gawk/grep/sed come from the PATH shim (main.sh). q-text-as-data
         # has no brew formula; every call to `q` in ray-tracing.sh is already
         # commented out, so nothing depends on it.
         if ! xcode-select -p >/dev/null 2>&1; then

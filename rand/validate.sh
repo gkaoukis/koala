@@ -5,12 +5,6 @@
 # Unrelated to this file's changes.
 
 TOP=$(git rev-parse --show-toplevel)
-OS=$("$TOP/.tools/detect-os.sh")
-if [ "$OS" = "macos" ]; then
-    export PATH="$TOP/.tools/gnubin:$PATH"
-fi
-
-TOP=$(git rev-parse --show-toplevel)
 eval_dir="${TOP}/rand"
 outputs_dir="${eval_dir}/outputs"
 

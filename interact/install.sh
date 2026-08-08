@@ -2,9 +2,6 @@
 
 TOP=$(git rev-parse --show-toplevel)
 OS=$("$TOP/.tools/detect-os.sh")
-if [ "$OS" = "macos" ]; then
-    export PATH="$TOP/.tools/gnubin:$PATH"
-fi
 
 case "$OS" in
     debian)
@@ -34,8 +31,7 @@ case "$OS" in
             zsh
         ;;
     macos)
-        "$TOP/.tools/setup-gnubin.sh"
-        # coreutils/sed/gawk come from the PATH shim above.
+        # coreutils/sed/gawk come from the PATH shim (main.sh).
         # ncurses-bin (tput/tic/infocmp) and zsh ship with the base OS already.
         if ! xcode-select -p >/dev/null 2>&1; then
             echo "Xcode Command Line Tools required: run 'xcode-select --install' first." >&2
