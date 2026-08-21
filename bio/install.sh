@@ -62,7 +62,6 @@ case "$OS" in
             curl \
             python3 \
             python3-dev \
-            python3.11-dev \
             python3-all-dev \
             python3-pip \
             perl \
@@ -88,9 +87,6 @@ case "$OS" in
 
         sudo wget -qO /usr/local/bin/liftOver http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/liftOver
         sudo chmod +x /usr/local/bin/liftOver
-
-        export CFLAGS="-I/usr/include/python3.11 -I/usr/include/python3.11/cpython"
-        export CPPFLAGS="$CFLAGS"
         ;;
     macos)
         # libdbi-perl has no brew formula; installed via cpanm in section 6
@@ -127,7 +123,8 @@ case "$OS" in
         fi
 
         # Prebuilt macOS wheels exist for this pipeline's Python packages, so
-        # the explicit Python-header CFLAGS the debian branch needs aren't.
+        # no C-header setup is needed here (unlike bio's other from-source
+        # builds below, e.g. gmap above).
         ;;
     fedora)
         sudo dnf install -y \
