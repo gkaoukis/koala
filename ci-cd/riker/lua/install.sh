@@ -3,17 +3,25 @@
 TOP=$(git rev-parse --show-toplevel)
 OS=$("$TOP/.tools/detect-os.sh")
 
-PACKAGES="gcc
-make
-wget"
-
 case "$OS" in
     fedora)
-        PKG_MANAGER="dnf"
+        PACKAGES="gcc
+make
+wget"
         sudo dnf makecache
         ;;
+    macos)
+        # gcc/make's role is filled by Xcode Command Line Tools.
+        PACKAGES="wget"
+        if ! xcode-select -p >/dev/null 2>&1; then
+            echo "Xcode Command Line Tools required: run 'xcode-select --install' first." >&2
+            exit 1
+        fi
+        ;;
     *)
-        PKG_MANAGER="apt-get"
+        PACKAGES="gcc
+make
+wget"
         sudo apt-get update
         ;;
 esac
@@ -25,6 +33,9 @@ for pkg in $PACKAGES; do
                 sudo dnf install -y "$pkg"
             fi
             ;;
+        macos)
+            brew install "$pkg"
+            ;;
         *)
             if ! dpkg -l | grep -q "^ii\s\+$pkg\s"; then
                 sudo apt-get install -y --no-install-recommends "$pkg"
@@ -32,4 +43,3 @@ for pkg in $PACKAGES; do
             ;;
     esac
 done
-

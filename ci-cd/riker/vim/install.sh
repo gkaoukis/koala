@@ -5,7 +5,6 @@ OS=$("$TOP/.tools/detect-os.sh")
 
 case "$OS" in
     fedora)
-        PKG_MANAGER="dnf"
         PACKAGES="git
             gcc
             make
@@ -18,8 +17,17 @@ case "$OS" in
             libselinux-devel"
         sudo dnf makecache
         ;;
+    macos)
+        # git/gcc/make's roles are filled by Xcode Command Line Tools; ncurses
+        # headers ship with the Xcode SDK. X11 libs and libselinux have no
+        # macOS equivalent; this benchmark builds vim console-only anyway.
+        PACKAGES=""
+        if ! xcode-select -p >/dev/null 2>&1; then
+            echo "Xcode Command Line Tools required: run 'xcode-select --install' first." >&2
+            exit 1
+        fi
+        ;;
     *)
-        PKG_MANAGER="apt-get"
         PACKAGES="git
             gcc
             make
@@ -40,6 +48,9 @@ for pkg in $PACKAGES; do
             if ! rpm -q "$pkg" >/dev/null 2>&1; then
                 sudo dnf install -y "$pkg"
             fi
+            ;;
+        macos)
+            brew install "$pkg"
             ;;
         *)
             if ! dpkg -l | grep -q "^ii\s\+$pkg\s"; then

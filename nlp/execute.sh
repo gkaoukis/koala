@@ -1,4 +1,5 @@
-#!/bin/bash --posix
+#!/bin/sh
+
 
 SUITE_DIR="$(realpath "$(dirname "$0")")"
 export SUITE_DIR
@@ -96,7 +97,7 @@ should_run() {
 }
 
 # Loop through each script name from the variable
-while IFS= read -r script; do
+for script in $script_names; do
     if should_run "$script"; then
         script_file="./scripts/$script.sh"
         output_dir="./outputs/$script/"
@@ -109,4 +110,4 @@ while IFS= read -r script; do
         $KOALA_SHELL "$script_file" "$output_dir"
         echo "$?"
     fi
-done <<< "$script_names"
+done

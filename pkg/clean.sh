@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/sh
+
 
 cd "$(realpath "$(dirname "$0")")" || exit 1
 

@@ -1,15 +1,15 @@
 # parsing
-shasta
-libdash
+shasta==0.5
+libdash==0.4.1
 
-# visualiztion
-pandas
-seaborn
-matplotlib
-psutil
+# visualization
+pandas==3.0.5
+seaborn==0.13.2
+matplotlib==3.11.1
+psutil==7.2.2
 
 # embeddings
-openai
-python-dotenv
-scikit-learn
-adjustText
+openai==2.52.0
+python-dotenv==1.2.2
+scikit-learn==1.9.0
+adjustText==1.4.0

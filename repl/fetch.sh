@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/sh
+
 
 URL='https://atlas.cs.brown.edu/data/'
 

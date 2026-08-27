@@ -1,57 +1,46 @@
 #!/bin/sh
 
 TOP=$(git rev-parse --show-toplevel)
-
 OS=$("$TOP/.tools/detect-os.sh")
 
-COMMON_PACKAGES="
-    sudo
-    coreutils
-    wget
-    unzip
-    gzip
-    gawk
-    sed
-    git
-    openssl
-    curl
-    ffmpeg
-    unrtf
-    zstd
-"
-
 case "$OS" in
-    fedora)
-        PKG_MANAGER="dnf"
-        PACKAGES="
-            $COMMON_PACKAGES
-            ImageMagick
-            xz
-        "
-        sudo dnf makecache
-        ;;
-    *)
-        PKG_MANAGER="apt-get"
-        PACKAGES="
-            $COMMON_PACKAGES
-            imagemagick
-            xz-utils
-        "
+    debian)
         sudo apt-get update
+
+        sudo apt-get install -y \
+          sudo \
+          coreutils \
+          wget \
+          unzip \
+          gzip \
+          gawk \
+          sed \
+          git \
+          openssl \
+          curl wget unzip gzip coreutils ffmpeg unrtf imagemagick zstd git xz-utils
+        ;;
+    macos)
+        # coreutils/gawk/sed come from the PATH shim (main.sh)
+        brew install wget unzip gzip git openssl curl ffmpeg unrtf imagemagick zstd xz
+        ;;
+    fedora)
+        sudo dnf makecache
+
+        sudo dnf install -y \
+          sudo \
+          coreutils \
+          wget \
+          unzip \
+          gzip \
+          gawk \
+          sed \
+          git \
+          openssl \
+          curl \
+          ffmpeg \
+          unrtf \
+          zstd \
+          ImageMagick \
+          xz
         ;;
 esac
-
-for pkg in $PACKAGES; do
-    case "$OS" in
-        fedora)
-            if ! rpm -q "$pkg" >/dev/null 2>&1; then
-                sudo dnf install -y "$pkg"
-            fi
-            ;;
-        *)
-            if ! dpkg -l | grep -q "^ii\\s\\+$pkg\\s"; then
-                sudo apt-get install -y --no-install-recommends "$pkg"
-            fi
-            ;;
-    esac
-done

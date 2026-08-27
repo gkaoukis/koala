@@ -1,20 +1,21 @@
-#!/bin/bash
+#!/bin/sh
+
 
 TOP=$(git rev-parse --show-toplevel)
 eval_dir="${TOP}/ml"
 # shell script to run verify.py
-parsed_args=()
+parsed_args=""
 
 
 size="full"
 for arg in "$@"; do
     case "$arg" in
         --small)
-            parsed_args+=("$arg")
+            parsed_args="$parsed_args $arg"
             size="small"
             ;;
         --min)
-            parsed_args+=("$arg")
+            parsed_args="$parsed_args $arg"
             size="min"
             ;;
     esac
@@ -25,5 +26,5 @@ OUT="$eval_dir/outputs/out_$size"
 export OUT
 
 # run the Python script
-python3 validate.py "${parsed_args[@]}"
+python3 validate.py $parsed_args
 echo "ml $?"

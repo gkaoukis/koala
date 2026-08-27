@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 TOP=$(git rev-parse --show-toplevel)
 eval_dir="${TOP}/rand"
@@ -98,11 +98,11 @@ if should_run "pickname"; then
         if [ "$file_count" -ne "$n_teams" ]; then
             status=1
         else
-            # Check each file has 100000 lines
+            # Check each file has 10 lines (pickname.sh: head -n 10)
             bad_files=0
             for f in "$dir"/team_*.txt; do
                 lines=$(wc -l < "$f")
-                if [ "$lines" -ne 100000 ]; then
+                if [ "$lines" -ne 10 ]; then
                     bad_files=$((bad_files + 1))
                 fi
             done

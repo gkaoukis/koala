@@ -1,63 +1,67 @@
 #!/bin/sh
 
 TOP=$(git rev-parse --show-toplevel)
-
 OS=$("$TOP/.tools/detect-os.sh")
 
-COMMON_PACKAGES="
-    coreutils
-    git
-    curl
-    wget
-    bzip2
-    gpg
-    tar
-    sed
-    gawk
-    autoconf
-    automake
-    python3
-    python3-pip
-    ca-certificates
-    zsh
-"
-
 case "$OS" in
-    fedora)
-        PKG_MANAGER="dnf"
-        PACKAGES="
-            $COMMON_PACKAGES
-            gcc
-            gcc-c++
-            make
-            python3-virtualenv
-            ncurses
-        "
-        sudo dnf makecache
+    debian)
+        sudo apt-get update -y
+
+        sudo apt-get install -y \
+            coreutils \
+            build-essential \
+            git \
+            curl \
+            wget \
+            bzip2 \
+            gpg \
+            tar \
+            coreutils \
+            sed \
+            gawk \
+            git \
+            autoconf \
+            automake \
+            build-essential \
+            python3 \
+            python3-pip \
+            python3-venv \
+            ncurses-bin \
+            ca-certificates \
+            zsh
         ;;
-    *)
-        PKG_MANAGER="apt-get"
-        PACKAGES="
-            $COMMON_PACKAGES
-            build-essential
-            python3-venv
-            ncurses-bin
-        "
-        sudo apt-get update
+    macos)
+        # coreutils/sed/gawk come from the PATH shim (main.sh).
+        # ncurses-bin (tput/tic/infocmp) and zsh ship with the base OS already.
+        if ! xcode-select -p >/dev/null 2>&1; then
+            echo "Xcode Command Line Tools required: run 'xcode-select --install' first." >&2
+            exit 1
+        fi
+        brew install git curl wget bzip2 gnupg gnu-tar autoconf automake python3 ca-certificates
+        ;;
+    fedora)
+        sudo dnf makecache
+
+        sudo dnf install -y \
+            coreutils \
+            gcc \
+            gcc-c++ \
+            make \
+            git \
+            curl \
+            wget \
+            bzip2 \
+            gpg \
+            tar \
+            sed \
+            gawk \
+            autoconf \
+            automake \
+            python3 \
+            python3-pip \
+            python3-virtualenv \
+            ncurses \
+            ca-certificates \
+            zsh
         ;;
 esac
-
-for pkg in $PACKAGES; do
-    case "$OS" in
-        fedora)
-            if ! rpm -q "$pkg" >/dev/null 2>&1; then
-                sudo dnf install -y "$pkg"
-            fi
-            ;;
-        *)
-            if ! dpkg -l | grep -q "^ii\s\+$pkg\s"; then
-                sudo apt-get install -y --no-install-recommends "$pkg"
-            fi
-            ;;
-    esac
-done

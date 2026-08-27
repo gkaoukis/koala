@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/sh
+
 
 cd "$(realpath "$(dirname "$0")")" || exit 1
 
@@ -64,26 +65,31 @@ if $generate; then
 fi
 
 if should_run "pacaur"; then
-    directory="outputs/aurpkg.$size"
-    input="inputs/packages.$size"
-
-    missing=0
-
-    while IFS= read -r pkg || [ -n "$pkg" ]; do
-        file="$directory/$pkg.txt"
-        if [ ! -f "$file" ]; then
-            missing=$((missing + 1))
-            continue
-        fi
-        if ! grep -q "Finished making" "$file"; then
-            missing=$((missing + 1))
-        fi
-    done < "$input"
-
-    if [ "$missing" -eq 0 ]; then
+    if [ "$OS" != "debian" ] && [ "$OS" != "fedora" ]; then
+        # pacaur.sh self-skips here too (needs makedeb, Linux-only).
         echo "aurpkg 0"
     else
-        echo "aurpkg 1"
+        directory="outputs/aurpkg.$size"
+        input="inputs/packages.$size"
+
+        missing=0
+
+        while IFS= read -r pkg || [ -n "$pkg" ]; do
+            file="$directory/$pkg.txt"
+            if [ ! -f "$file" ]; then
+                missing=$((missing + 1))
+                continue
+            fi
+            if ! grep -q "Finished making" "$file"; then
+                missing=$((missing + 1))
+            fi
+        done < "$input"
+
+        if [ "$missing" -eq 0 ]; then
+            echo "aurpkg 0"
+        else
+            echo "aurpkg 1"
+        fi
     fi
 fi
 

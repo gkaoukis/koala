@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if [ "$(uname -s)" != "Linux" ]; then
+    echo "try.sh: skipped, not supported on this platform ($(uname -s)) — needs mount -t overlay + chroot" >&2
+    exit 0
+fi
+
 AUTO_COMMIT=false
 while getopts "y" opt; do
     case $opt in
