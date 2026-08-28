@@ -1,6 +1,7 @@
 #!/bin/sh
 set -e
 
+
 TOP=$(git rev-parse --show-toplevel)
 eval_dir="${TOP}/interact"
 input_dir="${eval_dir}/inputs"

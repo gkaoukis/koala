@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/sh
+
 
 TOP=$(git rev-parse --show-toplevel)
 EVAL_DIR="${TOP}/repl"

@@ -1,5 +1,7 @@
-#!/bin/bash
+#!/bin/sh
 
+
+TOP=$(git rev-parse --show-toplevel)
 cd "$(realpath "$(dirname "$0")")" || exit 1
 URL='https://atlas.cs.brown.edu/data'
 
@@ -26,8 +28,8 @@ done
 mkdir -p outputs "$in_dir"
 cp $IN_NAME "$in_dir"
 cp "./Gene_locs.txt" "$in_dir"
-if [[ "$IN_NAME" == "input_min.txt" ]]; then
-    if [[ -d min_inputs ]]; then
+if [ "$IN_NAME" = "input_min.txt" ]; then
+    if [ -d min_inputs ]; then
         cp min_inputs/* "$in_dir/"
     else
         echo "Directory 'min_inputs' not found." >&2
@@ -35,12 +37,12 @@ if [[ "$IN_NAME" == "input_min.txt" ]]; then
     fi
 fi
 
-if [[ ! -f "$IN_NAME" ]]; then
+if [ ! -f "$IN_NAME" ]; then
     echo "Input file '$IN_NAME' not found." >&2
     exit 1
 fi
 
-if [[ $size == "min" ]]; then
+if [ "$size" = "min" ]; then
     exit 0
 fi
 
@@ -49,7 +51,7 @@ while IFS= read -r s_line; do
 
     out_file="$in_dir/$sample.bam"
 
-    if [[ ! -f "$out_file" ]]; then
+    if [ ! -f "$out_file" ]; then
         tmp_file="${out_file}.tmp"
         link="${URL}/bio/${size}/${sample}.bam"
         if wget -O "$tmp_file" --no-check-certificate "$link"; then
@@ -73,7 +75,7 @@ size=full
 # done
 
 export SIZE="$size" # for PARAMS.sh
-source "$TOP/bio/scripts/PARAMS.sh"
+. "$TOP/bio/scripts/PARAMS.sh"
 
 samples="hsa.dRNASeq.HeLa.polyA.1 hsa.dRNASeq.HeLa.polyA.REL5.1 hsa.dRNASeq.HeLa.polyA.PNK.REL5.1 \
 hsa.dRNASeq.HeLa.polyA.CIP.decap.REL5.long.1 hsa.dRNASeq.HeLa.polyA.decap.REL5.long.1 hsa.dRNASeq.HeLa.polyA.REL5.long.1 hsa.dRNASeq.HeLa.polyA.REL5OH.long.1"
@@ -107,7 +109,7 @@ echo ">>> SETUP DATA <<<"
 #
 # Prepare references and annotations
 #
-source "$TOP/bio/scripts/PARAMS.sh"
+. "$TOP/bio/scripts/PARAMS.sh"
 
 threads=8
 

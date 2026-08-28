@@ -13,6 +13,12 @@ NC='\033[0m' # No Color
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 REPORT_FILE="vps-audit-negate-report.txt"
 
+if [ "$(uname -s)" != "Linux" ]; then
+    echo "vps-audit-negate.sh: skipped, not supported on this platform ($(uname -s)) — reads /proc, /sys, dpkg/apt" >&2
+    echo "SKIPPED: not supported on this platform ($(uname -s))" > "$REPORT_FILE"
+    exit 0
+fi
+
 print_header() {
     header="$1"
     echo -e "\n${BLUE}${BOLD}$header${NC}"

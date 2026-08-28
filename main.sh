@@ -37,6 +37,8 @@ usage() {
     echo "  --quiet, -q      Suppress non-essential output (alias for --verbose 0)"
     echo "  --verbose N      Verbosity level: 0=silent, 1=info (default), 2=debug"
     echo "  --help, -h       Show this help message"
+    echo ""
+    echo "  source $0 --setup   Set up the macOS GNU-utils PATH shim in your shell"
 }
 
 
@@ -197,8 +199,10 @@ main() {
 
     VENV_DIR="$TOP/venv"
     if [ ! -d "$VENV_DIR" ]; then
-        log 2 "Creating virtual environment at $VENV_DIR"
-        python3 -m venv "$VENV_DIR"
+        . "$TOP/.tools/ensure-uv.sh"
+        uv python install 3.11
+        log 2 "Creating virtual environment at $VENV_DIR with uv (python 3.11)"
+        uv venv --python 3.11 "$VENV_DIR"
     fi
     log 2 "Activating virtual environment at $VENV_DIR"
     . "$VENV_DIR/bin/activate"
@@ -256,6 +260,10 @@ main() {
                 bash -c "git config --global --add safe.directory /benchmarks && ./setup.sh && ./main.sh \"$BENCHMARK\" $args $main_args --bare"
         fi
         exit $?
+    fi
+
+    if ! . "$TOP/.tools/macos-path.sh"; then
+        error "Failed to set up the macOS GNU-utils PATH shim (.tools/setup-gnubin.sh failed)"
     fi
 
     cd "$(dirname "$0")/$BENCHMARK" || error "Could not cd into benchmark folder"
@@ -322,19 +330,24 @@ main() {
 
         elif [ "$measure_time" = "true" ]; then
 
+            time_bin="/usr/bin/time"
+            if [ "$OS" = "macos" ]; then
+                time_bin="gtime"
+            fi
+
             if [ "$run_locally" = "true" ]; then
-                if ! command -v /usr/bin/time >/dev/null 2>&1 || ! command -v gawk >/dev/null 2>&1; then
+                if ! command -v "$time_bin" >/dev/null 2>&1 || ! command -v gawk >/dev/null 2>&1; then
                     echo "Please run setup.sh first to install dependencies."
                     exit 1
                 fi
             fi
 
             log 1 "Timing benchmark: $BENCHMARK  (run #$i)"
-            log 2 "Time-cmd: /usr/bin/time -f %e ./execute.sh $args"
+            log 2 "Time-cmd: $time_bin -f %e ./execute.sh $args"
             time_val_file="${BENCHMARK}_${shell_safe}_time_run${i}.txt"
             rm -f "$time_val_file"
 
-            /usr/bin/time -f "%e" -o "$time_val_file" \
+            "$time_bin" -f "%e" -o "$time_val_file" \
                 ./execute.sh $args \
                 1>"${BENCHMARK}.out" \
                 2>"${BENCHMARK}.err"
@@ -489,6 +502,24 @@ main() {
     cd - >/dev/null || exit 1
 
 }
+
+if [ "$1" = "--setup" ]; then
+    TOP=$(git rev-parse --show-toplevel 2>/dev/null)
+    if [ -z "$TOP" ]; then
+        echo "Error: not inside the koala git repository" >&2
+        return 1 2>/dev/null || exit 1
+    fi
+    if ! . "$TOP/.tools/macos-path.sh"; then
+        echo "Error: .tools/setup-gnubin.sh failed; PATH was not changed." >&2
+        return 1 2>/dev/null || exit 1
+    fi
+    if [ "$OS" = "macos" ]; then
+        echo "GNU utilities on PATH: $TOP/.tools/gnubin (only persists if this was sourced, not executed)."
+    else
+        echo "No PATH setup needed on $OS."
+    fi
+    return 0 2>/dev/null || exit 0
+fi
 
 cd "$(dirname "$0")" || error "Could not cd into script folder"
 

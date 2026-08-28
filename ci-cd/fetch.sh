@@ -1,13 +1,10 @@
-#! /bin/bash
+#!/bin/sh
 
-#!/bin/bash
 
 TOP="$(git rev-parse --show-toplevel)"
 eval_dir="${TOP}/ci-cd/riker"
 
-min_benchmark=(
-    "xz-clang"
-)
+min_benchmark="xz-clang"
 
 run_min=false
 
@@ -19,7 +16,7 @@ for arg in "$@"; do
 done
 
 if [ "$run_min" = true ]; then
-    for bench in "${min_benchmark[@]}"; do
+    for bench in $min_benchmark; do
         script_path="$eval_dir/$bench/fetch.sh"
         if [ -x "$script_path" ]; then
             "$script_path" "$@"

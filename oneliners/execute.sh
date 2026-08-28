@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/sh
+
 
 SUITE_DIR="$(realpath "$(dirname "$0")")"
 export SUITE_DIR
@@ -50,56 +51,50 @@ mkdir -p "$outputs_dir"
 export LC_ALL=C
 
 if [ "$size" = "small" ]; then
-    scripts_inputs=(
-        "nfa-regex;10M"
-        "sort;30M"
-        "top-n;30M"
-        "wf;30M"
-        "spell;30M"
-        "diff;30M"
-        "bi-grams;30M"
-        "set-diff;30M"
-        "sort-sort;30M"
-        "uniq-ips;logs-popcount-org_$size"
-        "comm;comm_$size"
-        "opt-parallel;chessdata_small"
-    )
+    scripts_inputs="nfa-regex;10M
+sort;30M
+top-n;30M
+wf;30M
+spell;30M
+diff;30M
+bi-grams;30M
+set-diff;30M
+sort-sort;30M
+uniq-ips;logs-popcount-org_$size
+comm;comm_$size
+opt-parallel;chessdata_small"
     chess_input="$input_dir/chessdata_small"
     comm_input="$input_dir/comm_small"
 
 elif [ "$size" = "min" ]; then
-    scripts_inputs=(
-        "nfa-regex;1M"
-        "sort;1M"
-        "top-n;1M"
-        "wf;1M"
-        "spell;1M"
-        "diff;1M"
-        "bi-grams;1M"
-        "set-diff;1M"
-        "sort-sort;1M"
-        "uniq-ips;logs-popcount-org_$size"
-        "comm;comm_$size"
-        "opt-parallel;chessdata_min"
-    )
+    scripts_inputs="nfa-regex;1M
+sort;1M
+top-n;1M
+wf;1M
+spell;1M
+diff;1M
+bi-grams;1M
+set-diff;1M
+sort-sort;1M
+uniq-ips;logs-popcount-org_$size
+comm;comm_$size
+opt-parallel;chessdata_min"
     chess_input="$input_dir/chessdata_min"
     comm_input="$input_dir/comm_min"
 
 else
-    scripts_inputs=(
-        "nfa-regex;1G"
-        "sort;3G"
-        "top-n;3G"
-        "wf;3G"
-        "spell;3G"
-        "diff;3G"
-        "bi-grams;3G"
-        "set-diff;3G"
-        "sort-sort;3G"
-        "uniq-ips;logs-popcount-org_$size"
-        "comm;comm_$size"
-        "opt-parallel;chessdata"
-    )
+    scripts_inputs="nfa-regex;1G
+sort;3G
+top-n;3G
+wf;3G
+spell;3G
+diff;3G
+bi-grams;3G
+set-diff;3G
+sort-sort;3G
+uniq-ips;logs-popcount-org_$size
+comm;comm_$size
+opt-parallel;chessdata"
     chess_input="$input_dir/chessdata"
     comm_input="$input_dir/comm_full"
 fi
@@ -117,13 +112,13 @@ should_run() {
     return 1
 }
 
-for script_input in "${scripts_inputs[@]}"
+for script_input in $scripts_inputs
 do
     case "$script_input" in
         opt-parallel*)
             if should_run "opt-parallel"; then
-                IFS=";" read -r -a parsed <<< "${script_input}"
-                script_file="$scripts_dir/${parsed[0]}.sh"
+                parsed_name="${script_input%%;*}"
+                script_file="$scripts_dir/${parsed_name}.sh"
                 echo "$script_file"
                 export BENCHMARK_INPUT_FILE="${chess_input}"
                 BENCHMARK_SCRIPT="$(realpath "$script_file")"
@@ -134,8 +129,8 @@ do
             ;;
         comm*)
             if should_run "comm"; then
-                IFS=";" read -r -a parsed <<< "${script_input}"
-                script_file="$scripts_dir/${parsed[0]}.sh"
+                parsed_name="${script_input%%;*}"
+                script_file="$scripts_dir/${parsed_name}.sh"
                 echo "$script_file"
                 export BENCHMARK_INPUT_FILE="${comm_input}"
                 BENCHMARK_SCRIPT="$(realpath "$script_file")"
@@ -145,13 +140,14 @@ do
             fi
             ;;
         *)
-            IFS=";" read -r -a parsed <<< "${script_input}"
-            script_name="${parsed[0]}"
-            
+            parsed_name="${script_input%%;*}"
+            parsed_value="${script_input#*;}"
+            script_name="$parsed_name"
+
             if should_run "$script_name"; then
-                script_file="$scripts_dir/${parsed[0]}.sh"
-                input_file="$input_dir/${parsed[1]}.txt"
-                output_file="$outputs_dir/${parsed[0]}.out"
+                script_file="$scripts_dir/${parsed_name}.sh"
+                input_file="$input_dir/${parsed_value}.txt"
+                output_file="$outputs_dir/${parsed_name}.out"
 
                 echo "$script_file"
                 BENCHMARK_INPUT_FILE="$(realpath "$input_file")"
@@ -159,7 +155,7 @@ do
 
                 BENCHMARK_SCRIPT="$(realpath "$script_file")"
                 export BENCHMARK_SCRIPT
-                
+
                 $KOALA_SHELL "$script_file" "$input_file" > "$output_file"
                 echo "$?"
             fi

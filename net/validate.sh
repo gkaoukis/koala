@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/sh
+
 
 TOP=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD/..")
 eval_dir="${TOP}/networking"

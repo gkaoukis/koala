@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 KOALA_SHELL=${KOALA_SHELL:-bash}
 TOP=$(git rev-parse --show-toplevel)
@@ -75,8 +75,25 @@ if should_run "image-annotation"; then
     export BENCHMARK_INPUT_FILE
 
     export BENCHMARK_SCRIPT="$(realpath "$scripts_dir/image-annotation.sh")"
+
+    # image-annotation.sh starts `ollama serve` with no readiness wait.
+    # Start and wait for one here first; its own attempt then no-ops.
+    ollama serve >/dev/null 2>&1 &
+    ollama_wait_pid=$!
+    i=0
+    while ! ollama list >/dev/null 2>&1; do
+        i=$((i + 1))
+        if [ "$i" -ge 30 ]; then
+            echo "ollama server did not become ready in time" >&2
+            break
+        fi
+        sleep 1
+    done
+
     $KOALA_SHELL "$scripts_dir/image-annotation.sh" "$img_input_dir" "$img_outputs_dir"
     echo $?
+
+    kill "$ollama_wait_pid" 2>/dev/null
 fi
 
 if should_run "playlist-creation"; then

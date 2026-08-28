@@ -26,11 +26,11 @@ def git_root() -> pathlib.Path:
 
 
 def du_size(path: str) -> int:
-    try:
-        out = subprocess.check_output(["du", "-b", path], text=True)
-        return int(out.split()[0])
-    except Exception:
-        return os.stat(path).st_size
+    # `du -b` is a GNU-only flag (BSD/macOS du has no -b), and os.stat already
+    # gives the exact byte size directly and portably without shelling out —
+    # this was already the fallback on any subprocess failure, so it's not a
+    # behavior change, just dropping the unnecessary and noisy subprocess call.
+    return os.stat(path).st_size
 
 
 def walk_files(root: pathlib.Path):

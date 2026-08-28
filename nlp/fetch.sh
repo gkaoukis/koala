@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/sh
+
 
 TOP=$(git rev-parse --show-toplevel)
 URL="https://atlas.cs.brown.edu/data"
@@ -31,7 +32,7 @@ if [ ! -f ./exodus ]; then
     curl --insecure -sf ${URL}/gutenberg/3/3/4/2/33420/33420-0.txt > exodus
 fi
 
-if [[ "$size" == "small" ]]; then
+if [ "$size" = "small" ]; then
     if [ ! -e ./pg-small ]; then
         data_url="${URL}/nlp/pg-small.tar.gz"
         wget --no-check-certificate -O pg-small.tar.gz "$data_url"
@@ -43,7 +44,7 @@ if [[ "$size" == "small" ]]; then
         rm pg-small.tar.gz
     fi
     exit 0
-elif [[ "$size" == "min" ]]; then
+elif [ "$size" = "min" ]; then
     if [ ! -e ./pg-min ]; then
         mkdir pg-min
         cd pg-min || exit 1

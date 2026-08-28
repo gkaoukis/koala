@@ -1,42 +1,37 @@
 #!/bin/sh
 
 TOP=$(git rev-parse --show-toplevel)
-
 OS=$("$TOP/.tools/detect-os.sh")
 
 case "$OS" in
-    fedora)
-        PKG_MANAGER="dnf"
-        PACKAGES="
-            curl wget unzip coreutils gzip gawk sed findutils
-            git python3 python3-pip # python3-venv is included with python3 on Fedora
-        "
-        sudo dnf makecache
-        ;;
-    *)
-        PKG_MANAGER="apt-get"
-        PACKAGES="
-            curl wget unzip coreutils gzip gawk sed findutils
-            git python3 python3-pip python3-venv
-        "
+    debian)
         sudo apt-get update
-        ;;
-esac
 
-for pkg in $PACKAGES; do
-    case "$OS" in
-        fedora)
-            if ! rpm -q "$pkg" >/dev/null 2>&1; then
-                sudo dnf install -y "$pkg"
-            fi
-            ;;
-        *)
+        pkgs="curl wget unzip coreutils gzip gawk sed findutils git python3 python3-pip python3-venv"
+
+        for pkg in $pkgs; do
             if ! dpkg -l | grep -q "$pkg"; then
                 sudo apt-get install -y --no-install-recommends "$pkg"
             fi
-            ;;
-    esac
-done
+        done
+        ;;
+    macos)
+        # coreutils/gawk/sed/findutils come from the PATH shim (main.sh)
+        brew install curl wget unzip gzip git python3
+        ;;
+    fedora)
+        sudo dnf makecache
+
+        # python3-venv is included with python3 on Fedora
+        pkgs="curl wget unzip coreutils gzip gawk sed findutils git python3 python3-pip"
+
+        for pkg in $pkgs; do
+            if ! rpm -q "$pkg" >/dev/null 2>&1; then
+                sudo dnf install -y "$pkg"
+            fi
+        done
+        ;;
+esac
 
 pip install --break-system-packages --upgrade pip
 

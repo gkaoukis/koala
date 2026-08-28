@@ -1,6 +1,7 @@
-#!/bin/bash
+#!/bin/sh
 set -x
 set -e
+
 
 TOP=$(git rev-parse --show-toplevel)
 input_dir="$TOP/pkg/inputs"

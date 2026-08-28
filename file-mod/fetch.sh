@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/sh
+
 
 TOP=$(git rev-parse --show-toplevel)
 
@@ -47,7 +48,7 @@ zip_dst=$input_dir/wav.zip
 full_dir="$input_dir/wav_full"
 small_dir="$input_dir/wav_small"
 min_dir="$input_dir/wav_min"
-if [[ ! -d "$full_dir" ]] || [[ -d "$full_dir" && -z "$(ls -A "$full_dir")" ]]; then
+if [ ! -d "$full_dir" ] || { [ -d "$full_dir" ] && [ -z "$(ls -A "$full_dir")" ]; }; then
     wget --no-check-certificate "$data_url" -O "$zip_dst"
     unzip "$zip_dst" -d "$input_dir"
     rm -rf "$full_dir" "$small_dir" "$min_dir"
@@ -55,21 +56,21 @@ if [[ ! -d "$full_dir" ]] || [[ -d "$full_dir" && -z "$(ls -A "$full_dir")" ]]; 
     # copy `.wav`s to their final destinations.
     # Make sure we have the correct number of inputs
     # with numbered backups (do not overwrite inputs).
-    if [[ "$size" == "full" ]]; then
+    if [ "$size" = "full" ]; then
         mkdir -p "$full_dir"
-        for i in {1..120}; do
+        for i in $(seq 1 120); do
             cp --backup=numbered "$input_dir"/wav/* "--target-directory=$full_dir"
         done
     fi
-    if [[ "$size" == "small" ]]; then
+    if [ "$size" = "small" ]; then
         mkdir -p "$small_dir"
-        for i in {1..10}; do
+        for i in $(seq 1 10); do
             cp --backup=numbered "$input_dir"/wav/* "--target-directory=$small_dir"
         done
     fi
-    if [[ "$size" == "min" ]]; then
+    if [ "$size" = "min" ]; then
         mkdir -p "$min_dir"
-        for i in {1..2}; do
+        for i in $(seq 1 2); do
             cp --backup=numbered "$input_dir"/wav/* "--target-directory=$min_dir"
         done
     fi
@@ -77,8 +78,8 @@ if [[ ! -d "$full_dir" ]] || [[ -d "$full_dir" && -z "$(ls -A "$full_dir")" ]]; 
 fi
 
 # if small flag
-if [[ "$size" == "small" ]]; then
-    if [[ -d "$input_dir/jpg_small" ]]; then
+if [ "$size" = "small" ]; then
+    if [ -d "$input_dir/jpg_small" ]; then
         echo "Data already downloaded and extracted."
         exit 0
     fi
@@ -95,8 +96,8 @@ if [[ "$size" == "small" ]]; then
     }
     rm "$zip_dst"
     exit 0
-elif [[ "$size" == "min" ]]; then
-    if [[ -d "$input_dir/jpg_min" ]]; then
+elif [ "$size" = "min" ]; then
+    if [ -d "$input_dir/jpg_min" ]; then
         echo "Data already downloaded and extracted."
         exit 0
     fi
@@ -106,7 +107,7 @@ elif [[ "$size" == "min" ]]; then
     exit 0
 fi
 
-if [[ -d "$input_dir/jpg" ]]; then
+if [ -d "$input_dir/jpg" ]; then
     echo "Data already downloaded and extracted."
     exit 0
 fi

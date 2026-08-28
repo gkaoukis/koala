@@ -1,46 +1,33 @@
 #!/bin/sh
 
 TOP=$(git rev-parse --show-toplevel)
-
 OS=$("$TOP/.tools/detect-os.sh")
 
-COMMON_PACKAGES="
-    coreutils
-    curl
-    gzip
-    gawk
-    sed
-    git
-"
-
 case "$OS" in
-    fedora)
-        PKG_MANAGER="dnf"
-        PACKAGES="
-            $COMMON_PACKAGES
-        "
-        sudo dnf makecache
-        ;;
-    *)
-        PKG_MANAGER="apt-get"
-        PACKAGES="
-            $COMMON_PACKAGES
-        "
-        sudo apt-get update
-        ;;
-esac
+    debian)
+        pkgs="coreutils curl gzip gawk sed git"
 
-for pkg in $PACKAGES; do
-    case "$OS" in
-        fedora)
+        sudo apt-get update
+
+        for pkg in $pkgs; do
+            if ! dpkg -s "$pkg" >/dev/null 2>&1; then
+                sudo apt-get install --no-install-recommends -y "$pkg"
+            fi
+        done
+        ;;
+    macos)
+        # coreutils/gawk/sed come from the PATH shim (main.sh)
+        brew install curl gzip git
+        ;;
+    fedora)
+        pkgs="coreutils curl gzip gawk sed git"
+
+        sudo dnf makecache
+
+        for pkg in $pkgs; do
             if ! rpm -q "$pkg" >/dev/null 2>&1; then
                 sudo dnf install -y "$pkg"
             fi
-            ;;
-        *)
-            if ! dpkg -l | grep -q "^ii\s\+$pkg\s"; then
-                sudo apt-get install --no-install-recommends -y "$pkg"
-            fi
-            ;;
-    esac
-done
+        done
+        ;;
+esac
