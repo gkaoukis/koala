@@ -69,8 +69,6 @@ setup_namespace() {
     $SUDO ip netns exec "$NETNS_NAME" ip addr add 10.200.1.2/24 dev "$VETH_NS"
     $SUDO ip netns exec "$NETNS_NAME" ip link set "$VETH_NS" up
 
-    # CRITICAL FIX: Wait for link carrier to be ready before adding routes
-    # "Nexthop has invalid gateway" occurs because the link isn't fully up yet
     sleep 0.5
 
     $SUDO ip netns exec "$NETNS_NAME" ip route add default via 10.200.1.1
@@ -181,9 +179,6 @@ if should_run "accept-ips"; then
     # Setup the namespace specifically for this test
     setup_namespace
     
-    # A namespace that cannot be entered yields no output at all, and validate.sh
-    # can then only report the output file as missing. Probe it here so the real
-    # cause is visible in the run log.
     if $SUDO ip netns exec "$NETNS_NAME" true 2>/dev/null; then
         export BENCHMARK_INPUT_FILE="$input_dir/ips_$size.txt"
         export BENCHMARK_SCRIPT="$(realpath "$scripts_dir/accept-ips.sh")"
